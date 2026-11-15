@@ -1207,6 +1207,16 @@ internal fun IconShape.displayName(): String = when (this) {
     IconShape.COOKIE_4 -> "Cookie 4"
     IconShape.COOKIE_6 -> "Cookie 6"
     IconShape.CLOVER_4 -> "Clover"
+    IconShape.SQUARE -> "Square"
+    IconShape.DIAMOND -> "Diamond"
+    IconShape.PENTAGON -> "Pentagon"
+    IconShape.SUNNY -> "Sunny"
+    IconShape.COOKIE_7 -> "Cookie 7"
+    IconShape.COOKIE_9 -> "Cookie 9"
+    IconShape.COOKIE_12 -> "Cookie 12"
+    IconShape.CLOVER_8 -> "Clover 8"
+    IconShape.BURST -> "Burst"
+    IconShape.FLOWER -> "Flower"
 }
 
 internal fun IconPosition.displayName(): String = when (this) {

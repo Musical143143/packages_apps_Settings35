@@ -261,6 +261,16 @@ internal fun IconShape.containerShape(): Shape = when (this) {
     IconShape.COOKIE_4 -> MaterialShapes.Cookie4Sided.toShape()
     IconShape.COOKIE_6 -> MaterialShapes.Cookie6Sided.toShape()
     IconShape.CLOVER_4 -> MaterialShapes.Clover4Leaf.toShape()
+    IconShape.SQUARE -> MaterialShapes.Square.toShape()
+    IconShape.DIAMOND -> MaterialShapes.Diamond.toShape()
+    IconShape.PENTAGON -> MaterialShapes.Pentagon.toShape()
+    IconShape.SUNNY -> MaterialShapes.Sunny.toShape()
+    IconShape.COOKIE_7 -> MaterialShapes.Cookie7Sided.toShape()
+    IconShape.COOKIE_9 -> MaterialShapes.Cookie9Sided.toShape()
+    IconShape.COOKIE_12 -> MaterialShapes.Cookie12Sided.toShape()
+    IconShape.CLOVER_8 -> MaterialShapes.Clover8Leaf.toShape()
+    IconShape.BURST -> MaterialShapes.Burst.toShape()
+    IconShape.FLOWER -> MaterialShapes.Flower.toShape()
 }
 
 @Composable

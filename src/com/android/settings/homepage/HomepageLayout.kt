@@ -63,7 +63,10 @@ enum class TileSize(val width: TileWidth, val height: TileHeight) {
 
 enum class SearchBarPosition { TOP, BOTTOM, INLINE, HIDDEN }
 enum class IconStyle { ACCENT, PLAIN, FILLED }
-enum class IconShape { CIRCLE, ARROW, PILL, TRIANGLE, GEM, COOKIE_4, COOKIE_6, CLOVER_4 }
+enum class IconShape {
+    CIRCLE, ARROW, PILL, TRIANGLE, GEM, COOKIE_4, COOKIE_6, CLOVER_4,
+    SQUARE, DIAMOND, PENTAGON, SUNNY, COOKIE_7, COOKIE_9, COOKIE_12, CLOVER_8, BURST, FLOWER,
+}
 enum class IconPosition { START, END }
 enum class ChevronStyle {
     PLAIN,
