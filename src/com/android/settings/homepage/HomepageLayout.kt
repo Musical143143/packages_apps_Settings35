@@ -292,6 +292,21 @@ data class HomepageLayout(
 
     fun resetIconColor(): HomepageLayout = if (iconColor != null) copy(iconColor = null) else this
 
+    /**
+     * Applies the One UI style: large soft corners, separated cards, filled icons, a top search
+     * bar and a subtle press squish. Only these visual fields change. Items, their order and
+     * hidden tiles are kept.
+     */
+    fun withOneUiStyle(): HomepageLayout = copy(
+        cornerStyle = CornerStyle.SOFT_LARGE,
+        dividerStyle = DividerStyle.SPLIT,
+        iconStyle = IconStyle.FILLED,
+        searchBar = SearchBarPosition.TOP,
+        showSummaries = true,
+        chevronStyle = ChevronStyle.PLAIN,
+        tapAnimation = TapAnimation.SQUISH,
+    )
+
     fun resetIconColor(key: String): HomepageLayout =
         if (key in iconColors) copy(iconColors = iconColors - key) else this
 

@@ -35,6 +35,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -1006,11 +1007,18 @@ internal fun AppearancePanel(
                     )
 
                     Spacer(Modifier.height(16.dp))
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        modifier = Modifier.horizontalScroll(rememberScrollState()),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
                         OutlinedButton(onClick = onAddBreak) {
                             Icon(Icons.Outlined.Add, contentDescription = null, Modifier.size(18.dp))
                             Spacer(Modifier.width(6.dp))
                             Text("Card break")
+                        }
+                        Spacer(Modifier.width(8.dp))
+                        OutlinedButton(onClick = { onLayout(layout.withOneUiStyle()) }) {
+                            Text("One UI style")
                         }
                         Spacer(Modifier.width(8.dp))
                         OutlinedButton(onClick = onResetAll) {
