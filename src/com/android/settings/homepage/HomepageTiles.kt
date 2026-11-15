@@ -109,11 +109,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
@@ -168,7 +164,6 @@ internal val SEARCH_HINTS = listOf(
 
 private const val GREETING_INTERVAL_MS = 3000L
 private const val RAINBOW_CYCLE_MS = 6000
-private const val RAINBOW_HUE_STEP_DEGREES = 15f
 private const val GREETING_FADE_MS = 400
 
 /** Picks a random greeting index that is different from [current]. */
@@ -176,20 +171,14 @@ private fun nextGreetingIndex(current: Int): Int =
     (SEARCH_HINTS.indices - current).random()
 
 /**
- * Colors each character with a hue that moves over time and offsets by position, so a smooth
- * RGB wave runs through the text. Saturation and brightness are tuned per theme for contrast.
+ * One RGB color that cycles around the hue wheel as [phase] goes from 0 to 1. Only the color
+ * changes each frame, so the text is not re-laid out. Saturation and brightness are tuned
+ * per theme for contrast.
  */
-private fun rainbowGreeting(text: String, phase: Float, isDark: Boolean): AnnotatedString {
+private fun rainbowColor(phase: Float, isDark: Boolean): Color {
     val saturation = if (isDark) 0.55f else 0.9f
     val brightness = if (isDark) 1f else 0.72f
-    return buildAnnotatedString {
-        text.forEachIndexed { index, char ->
-            val hue = (phase * 360f + index * RAINBOW_HUE_STEP_DEGREES) % 360f
-            withStyle(SpanStyle(color = Color.hsv(hue, saturation, brightness))) {
-                append(char)
-            }
-        }
-    }
+    return Color.hsv(phase * 360f, saturation, brightness)
 }
 
 /**
@@ -248,7 +237,8 @@ private fun RotatingSearchHint(modifier: Modifier = Modifier) {
         label = "searchHintGreeting",
     ) { current ->
         Text(
-            text = rainbowGreeting(SEARCH_HINTS[current], phase, isDark),
+            text = SEARCH_HINTS[current],
+            color = rainbowColor(phase, isDark),
             style = MaterialTheme.typography.bodyLarge,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
