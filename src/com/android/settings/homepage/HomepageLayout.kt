@@ -86,6 +86,16 @@ enum class ChevronStyle {
     PLAIN,
     CONTAINED,
     HIDDEN,
+    SQUARE,
+    PILL,
+    FILLED,
+    TONAL,
+    OUTLINED,
+    ACCENT,
+    DOUBLE,
+    DOWN,
+    UP,
+    LARGE,
 }
 
 enum class CornerStyle(val radius: Dp) { SOFT(16.dp), ROUNDED(24.dp), PILL(32.dp) }

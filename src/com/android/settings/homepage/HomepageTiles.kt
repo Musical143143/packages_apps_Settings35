@@ -23,7 +23,9 @@ import android.provider.Settings
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.border
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Path
@@ -884,27 +886,100 @@ private fun TileSummary(
 }
 
 @Composable
-private fun Chevron(style: ChevronStyle, size: Dp = 24.dp) {
-    val glyph: @Composable () -> Unit = {
-        Icon(
-            imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(size),
-        )
+private fun ChevronGlyph(tint: Color, size: Dp, rotationDegrees: Float = 0f) {
+    Icon(
+        imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight,
+        contentDescription = null,
+        tint = tint,
+        modifier = Modifier.size(size).rotate(rotationDegrees),
+    )
+}
+
+/** A chevron sitting inside a filled or outlined badge of [shape]. */
+@Composable
+private fun ChevronBadge(
+    shape: Shape,
+    container: Color,
+    size: Dp,
+    glyphTint: Color,
+    width: Dp = size + CHEVRON_CONTAINER_PADDING * 2,
+    border: Color? = null,
+) {
+    Box(
+        modifier = Modifier
+            .size(width = width, height = size + CHEVRON_CONTAINER_PADDING * 2)
+            .clip(shape)
+            .background(container)
+            .then(if (border != null) Modifier.border(1.dp, border, shape) else Modifier),
+        contentAlignment = Alignment.Center,
+    ) {
+        ChevronGlyph(tint = glyphTint, size = size)
     }
-    if (style == ChevronStyle.CONTAINED) {
-        Box(
-            modifier = Modifier
-                .size(size + CHEVRON_CONTAINER_PADDING * 2)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceContainerHighest),
-            contentAlignment = Alignment.Center,
-        ) {
-            glyph()
+}
+
+@Composable
+private fun Chevron(style: ChevronStyle, size: Dp = 24.dp) {
+    val scheme = MaterialTheme.colorScheme
+    val neutral = scheme.onSurfaceVariant
+    when (style) {
+        ChevronStyle.CONTAINED -> ChevronBadge(
+            shape = CircleShape,
+            container = scheme.surfaceContainerHighest,
+            size = size,
+            glyphTint = neutral,
+        )
+
+        ChevronStyle.SQUARE -> ChevronBadge(
+            shape = RoundedCornerShape(12.dp),
+            container = scheme.surfaceContainerHighest,
+            size = size,
+            glyphTint = neutral,
+        )
+
+        ChevronStyle.PILL -> ChevronBadge(
+            shape = RoundedCornerShape(percent = 50),
+            container = scheme.surfaceContainerHighest,
+            size = size,
+            glyphTint = neutral,
+            width = size * 1.6f + CHEVRON_CONTAINER_PADDING * 2,
+        )
+
+        ChevronStyle.FILLED -> ChevronBadge(
+            shape = CircleShape,
+            container = scheme.primary,
+            size = size,
+            glyphTint = scheme.onPrimary,
+        )
+
+        ChevronStyle.TONAL -> ChevronBadge(
+            shape = CircleShape,
+            container = scheme.primaryContainer,
+            size = size,
+            glyphTint = scheme.onPrimaryContainer,
+        )
+
+        ChevronStyle.OUTLINED -> ChevronBadge(
+            shape = CircleShape,
+            container = Color.Transparent,
+            size = size,
+            glyphTint = neutral,
+            border = scheme.outlineVariant,
+        )
+
+        ChevronStyle.ACCENT -> ChevronGlyph(tint = scheme.primary, size = size)
+
+        ChevronStyle.DOUBLE -> Row(verticalAlignment = Alignment.CenterVertically) {
+            ChevronGlyph(tint = neutral, size = size * 0.75f)
+            ChevronGlyph(tint = neutral, size = size * 0.75f)
         }
-    } else {
-        glyph()
+
+        ChevronStyle.DOWN -> ChevronGlyph(tint = neutral, size = size, rotationDegrees = 90f)
+
+        ChevronStyle.UP -> ChevronGlyph(tint = neutral, size = size, rotationDegrees = -90f)
+
+        ChevronStyle.LARGE -> ChevronGlyph(tint = neutral, size = size + 8.dp)
+
+        ChevronStyle.PLAIN, ChevronStyle.HIDDEN -> ChevronGlyph(tint = neutral, size = size)
     }
 }
 
