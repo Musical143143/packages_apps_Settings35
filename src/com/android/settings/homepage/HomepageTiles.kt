@@ -41,7 +41,15 @@ import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.ui.composed
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -242,6 +250,7 @@ data class TileStyle(
     val iconShape: IconShape = IconShape.CIRCLE,
     val iconPosition: IconPosition = IconPosition.START,
     val chevronStyle: ChevronStyle = ChevronStyle.PLAIN,
+    val tapAnimation: TapAnimation = TapAnimation.RIPPLE,
 )
 
 fun HomepageLayout.tileStyle(): TileStyle = TileStyle(
@@ -254,6 +263,7 @@ fun HomepageLayout.tileStyle(): TileStyle = TileStyle(
     iconShape = iconShape,
     iconPosition = iconPosition,
     chevronStyle = chevronStyle,
+    tapAnimation = tapAnimation,
 )
 
 internal fun TileSize.fixedHeight(): Dp? = when (this) {
@@ -401,7 +411,7 @@ internal fun HomepageTile(
             .fillMaxWidth()
             .then(if (height != null) Modifier.height(height) else Modifier)
             .clip(style.cornerShape)
-            .then(if (clickable) Modifier.clickable(onClick = onClick) else Modifier),
+            .then(if (clickable) Modifier.tapFeedback(style.tapAnimation, onClick) else Modifier),
         shape = style.cornerShape,
         color = cardSurfaceColor(backdrop),
         contentColor = MaterialTheme.colorScheme.onSurface,
@@ -602,7 +612,7 @@ internal fun HomepageCard(
             if (backdrop != null) CardBackdrop(backdrop)
             Column(modifier = Modifier.padding(vertical = 4.dp)) {
                 entries.forEachIndexed { index, item ->
-                    Box(modifier = Modifier.clickable { onEntryClick(item) }) {
+                    Box(modifier = Modifier.tapFeedback(style.tapAnimation) { onEntryClick(item) }) {
                         TileBody(
                             item = item,
                             size = TileSize.ROW,
@@ -715,6 +725,57 @@ internal fun HomepageDivider(
             )
         }
     }
+}
+
+private const val TAP_SQUISH_SCALE = 0.94f
+
+/**
+ * Press feedback for a tile, chosen in the editor. Ripple, glow and squish can be combined.
+ * The glow uses the theme's primary color, with a stronger tint on dark surfaces.
+ */
+internal fun Modifier.tapFeedback(style: TapAnimation, onClick: () -> Unit): Modifier = composed {
+    val interaction = remember { MutableInteractionSource() }
+    val pressed by interaction.collectIsPressedAsState()
+    val scheme = MaterialTheme.colorScheme
+    val isDark = scheme.surfaceBright.luminance() < 0.5f
+    val glowColor = scheme.primary.copy(alpha = if (isDark) 0.35f else 0.22f)
+    val glow by animateFloatAsState(
+        targetValue = if (pressed && style.glow) 1f else 0f,
+        animationSpec = tween(durationMillis = 280),
+        label = "tapGlow",
+    )
+    val squish by animateFloatAsState(
+        targetValue = if (pressed && style.squish) TAP_SQUISH_SCALE else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessMedium,
+        ),
+        label = "tapSquish",
+    )
+    Modifier
+        .graphicsLayer {
+            scaleX = squish
+            scaleY = squish
+        }
+        .drawBehind {
+            if (glow > 0f) {
+                drawRect(
+                    brush = Brush.radialGradient(
+                        colors = listOf(
+                            glowColor.copy(alpha = glowColor.alpha * glow),
+                            Color.Transparent,
+                        ),
+                        center = Offset(size.width / 2f, size.height / 2f),
+                        radius = size.maxDimension / 1.2f,
+                    ),
+                )
+            }
+        }
+        .clickable(
+            interactionSource = interaction,
+            indication = if (style.ripple) LocalIndication.current else null,
+            onClick = onClick,
+        )
 }
 
 /** Draws the extra divider styles. Each is one row-height element between tiles. */

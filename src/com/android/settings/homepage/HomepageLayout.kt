@@ -176,6 +176,18 @@ enum class DividerStyle {
     RAINBOW,
 }
 
+/**
+ * Press feedback for a tile. [ripple] shows the Material ripple, [glow] a soft primary glow,
+ * and [squish] a small press-down scale.
+ */
+enum class TapAnimation(val ripple: Boolean, val glow: Boolean, val squish: Boolean) {
+    RIPPLE(ripple = true, glow = false, squish = false),
+    RIPPLE_GLOW(ripple = true, glow = true, squish = false),
+    GLOW(ripple = false, glow = true, squish = false),
+    SQUISH(ripple = true, glow = false, squish = true),
+    PULSE(ripple = true, glow = true, squish = true),
+}
+
 enum class HeaderSize { LARGE, COMPACT }
 
 data class HeaderConfig(
@@ -210,6 +222,7 @@ data class HomepageLayout(
     val chevronStyle: ChevronStyle = ChevronStyle.PLAIN,
     val cornerStyle: CornerStyle = CornerStyle.ROUNDED,
     val dividerStyle: DividerStyle = DividerStyle.INSET,
+    val tapAnimation: TapAnimation = TapAnimation.RIPPLE,
 ) {
 
     fun sizeOf(key: String, default: TileSize): TileSize = sizes[key] ?: default
@@ -436,6 +449,7 @@ internal object HomepageLayoutJson {
     private const val KEY_CHEVRON_STYLE = "chevronStyle"
     private const val KEY_CORNER_STYLE = "cornerStyle"
     private const val KEY_DIVIDER_STYLE = "dividerStyle"
+    private const val KEY_TAP_ANIMATION = "tapAnimation"
 
     private const val KEY_SHOW_TITLE = "showTitle"
     private const val KEY_CUSTOM_TITLE = "customTitle"
@@ -487,6 +501,7 @@ internal object HomepageLayoutJson {
         put(KEY_CHEVRON_STYLE, layout.chevronStyle.name)
         put(KEY_CORNER_STYLE, layout.cornerStyle.name)
         put(KEY_DIVIDER_STYLE, layout.dividerStyle.name)
+        put(KEY_TAP_ANIMATION, layout.tapAnimation.name)
     }.toString()
 
     fun decode(raw: String?, fallback: HomepageLayout): HomepageLayout {
@@ -516,6 +531,7 @@ internal object HomepageLayoutJson {
                 chevronStyle = enumOr(json.optString(KEY_CHEVRON_STYLE), fallback.chevronStyle),
                 cornerStyle = enumOr(json.optString(KEY_CORNER_STYLE), fallback.cornerStyle),
                 dividerStyle = enumOr(json.optString(KEY_DIVIDER_STYLE), fallback.dividerStyle),
+                tapAnimation = enumOr(json.optString(KEY_TAP_ANIMATION), fallback.tapAnimation),
             )
         } catch (e: Exception) {
             Log.w(TAG, "Discarding unreadable homepage layout", e)

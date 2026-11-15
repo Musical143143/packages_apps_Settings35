@@ -997,6 +997,14 @@ internal fun AppearancePanel(
                         onSelect = { onLayout(layout.copy(dividerStyle = it)) },
                     )
 
+                    SectionLabel("Tap animation")
+                    ChipOptions(
+                        options = TapAnimation.values().toList(),
+                        selected = layout.tapAnimation,
+                        labelOf = { it.displayName() },
+                        onSelect = { onLayout(layout.copy(tapAnimation = it)) },
+                    )
+
                     Spacer(Modifier.height(16.dp))
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         OutlinedButton(onClick = onAddBreak) {
@@ -1316,6 +1324,14 @@ internal fun DividerStyle.displayName(): String = when (this) {
     DividerStyle.ROUNDED -> "Rounded"
     DividerStyle.SHADOW -> "Shadow"
     DividerStyle.RAINBOW -> "Rainbow"
+}
+
+internal fun TapAnimation.displayName(): String = when (this) {
+    TapAnimation.RIPPLE -> "Ripple"
+    TapAnimation.RIPPLE_GLOW -> "Ripple glow"
+    TapAnimation.GLOW -> "Glow"
+    TapAnimation.SQUISH -> "Squish"
+    TapAnimation.PULSE -> "Pulse"
 }
 
 internal fun HeaderSize.displayName(): String = when (this) {
