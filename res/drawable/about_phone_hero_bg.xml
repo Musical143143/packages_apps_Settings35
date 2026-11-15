@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Light hero card background for the About phone screen. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <gradient
+        android:angle="315"
+        android:type="linear"
+        android:startColor="#FFEDE7FF"
+        android:endColor="#FFF7F5FF" />
+    <corners android:radius="28dp" />
+</shape>

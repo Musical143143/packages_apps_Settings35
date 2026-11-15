@@ -29,6 +29,7 @@
     <!-- Device name -->
     <Preference
         android:key="about_device_name"
+        android:icon="@drawable/ic_phone"
         android:title="@string/about_device_name"
         android:summary="@string/summary_placeholder"
         settings:enableCopying="true"
@@ -37,6 +38,7 @@
     <!-- Android version -->
     <Preference
         android:key="os_firmware_version"
+        android:icon="@drawable/ic_android"
         android:title="@string/firmware_version"
         android:summary="@string/summary_placeholder"
         settings:enableCopying="true"
@@ -45,6 +47,7 @@
 
     <Preference
         android:key="lunaris_buildtype"
+        android:icon="@drawable/ic_about_package"
         android:title="@string/lunaris_build_type"
         android:summary="@string/summary_placeholder"
         settings:enableCopying="true"
@@ -53,6 +56,7 @@
     <!-- Paranoid Maintainer  -->
     <Preference
         android:key="Paranoid_maintainer"
+        android:icon="@drawable/ic_person"
         android:title="@string/Paranoid_maintainer"
         android:summary="@string/summary_placeholder"
         settings:enableCopying="true"

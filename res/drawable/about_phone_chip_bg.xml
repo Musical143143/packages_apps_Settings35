@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Translucent purple chip behind each spec icon. Works on light and dark backgrounds. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#338B5CF6" />
+    <corners android:radius="12dp" />
+</shape>
