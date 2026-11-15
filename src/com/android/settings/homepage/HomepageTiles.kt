@@ -86,7 +86,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -112,7 +111,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.delay
 
 internal val GRID_TILE_SPACING = 12.dp
 internal val SEARCH_BAR_HEIGHT = 56.dp
@@ -162,7 +160,6 @@ internal val SEARCH_HINTS = listOf(
     "Customize anything. Just search",
 )
 
-private const val GREETING_INTERVAL_MS = 3000L
 private const val RAINBOW_CYCLE_MS = 6000
 private const val GREETING_FADE_MS = 400
 
@@ -182,8 +179,9 @@ private fun rainbowColor(phase: Float, isDark: Boolean): Color {
 }
 
 /**
- * Shows a greeting from [SEARCH_HINTS] that changes every few seconds with a fade, drawn in
- * an animated RGB gradient. Freezes the color cycle when animations are turned off.
+ * Shows a greeting from [SEARCH_HINTS] in an animated RGB color. The greeting only changes when
+ * the screen resumes (opening Settings again), not on a timer. Freezes the color cycle when
+ * animations are turned off.
  */
 @Composable
 private fun RotatingSearchHint(modifier: Modifier = Modifier) {
@@ -207,12 +205,6 @@ private fun RotatingSearchHint(modifier: Modifier = Modifier) {
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
-    }
-    LaunchedEffect(Unit) {
-        while (true) {
-            delay(GREETING_INTERVAL_MS)
-            index = nextGreetingIndex(index)
-        }
     }
 
     val transition = rememberInfiniteTransition(label = "searchHintRgb")
