@@ -16,10 +16,16 @@
 
 package com.android.settings.fuelgauge
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.animation.ValueAnimator
 import android.app.settings.SettingsEnums.ACTION_BATTERY_LEVEL
 import android.content.Context
+import android.provider.Settings
+import android.view.animation.DecelerateInterpolator
 import androidx.annotation.VisibleForTesting
 import androidx.preference.Preference
+import java.util.WeakHashMap
 import com.android.settings.R
 import com.android.settings.contract.KEY_BATTERY_LEVEL
 import com.android.settings.fuelgauge.BatteryBroadcastReceiver.BatteryUpdateType.BATTERY_NOT_PRESENT
@@ -132,16 +138,61 @@ class BatteryHeaderPreference :
     companion object {
         private const val KEY = "battery_header"
         private const val BATTERY_MAX_LEVEL: Long = 100L
+        private const val ANIMATION_DURATION_MS = 900L
+
+        /** Preference extra holding the level currently drawn, so changes animate from it. */
+        private const val EXTRA_SHOWN_LEVEL = "battery_header_shown_level"
+
+        /** Running fill animations, so a newer level replaces an animation still in progress. */
+        private val runningAnimations = WeakHashMap<Preference, ValueAnimator>()
 
         private fun quickUpdateHeaderPreference(preference: UsageProgressBarPreference) {
             val batteryIntent = BatteryUtils.getBatteryIntent(preference.context) ?: return
             val batteryLevel: Int = Utils.getBatteryLevel(batteryIntent)
-            preference.apply {
-                setUsageSummary(com.android.settings.Utils.formatPercentage(batteryLevel))
-                setPercent(batteryLevel.toLong(), BATTERY_MAX_LEVEL)
-                setBottomSummary("")
+            preference.setBottomSummary("")
+
+            val shownLevel = preference.extras.getInt(EXTRA_SHOWN_LEVEL, -1)
+            runningAnimations.remove(preference)?.cancel()
+            if (shownLevel == batteryLevel) {
+                applyLevel(preference, batteryLevel)
+                return
             }
+            // First draw counts up from empty; later changes start from the level on screen.
+            val startLevel = if (shownLevel < 0) 0 else shownLevel
+            if (!animationsEnabled(preference.context)) {
+                applyLevel(preference, batteryLevel)
+                return
+            }
+            val animator =
+                ValueAnimator.ofInt(startLevel, batteryLevel).apply {
+                    duration = ANIMATION_DURATION_MS
+                    interpolator = DecelerateInterpolator()
+                    addUpdateListener { applyLevel(preference, it.animatedValue as Int) }
+                    addListener(
+                        object : AnimatorListenerAdapter() {
+                            override fun onAnimationEnd(animation: Animator) {
+                                runningAnimations.remove(preference)
+                            }
+                        }
+                    )
+                }
+            runningAnimations[preference] = animator
+            animator.start()
         }
+
+        private fun applyLevel(preference: UsageProgressBarPreference, level: Int) {
+            preference.extras.putInt(EXTRA_SHOWN_LEVEL, level)
+            preference.setUsageSummary(com.android.settings.Utils.formatPercentage(level))
+            preference.setPercent(level.toLong(), BATTERY_MAX_LEVEL)
+        }
+
+        /** Skip the animation when the user has turned system animations off. */
+        private fun animationsEnabled(context: Context): Boolean =
+            Settings.Global.getFloat(
+                context.contentResolver,
+                Settings.Global.ANIMATOR_DURATION_SCALE,
+                1f,
+            ) > 0f
     }
 }
 // LINT.ThenChange(BatteryHeaderPreferenceController.java)
