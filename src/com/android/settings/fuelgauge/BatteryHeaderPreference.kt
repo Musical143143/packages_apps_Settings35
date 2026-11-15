@@ -69,7 +69,7 @@ class BatteryHeaderPreference :
 
     override fun tags(context: Context) = arrayOf(KEY_BATTERY_LEVEL)
 
-    override fun createWidget(context: Context) = RainbowBatteryProgressPreference(context)
+    override fun createWidget(context: Context) = RainbowBatteryProgressPreference(context, null)
 
     override fun bind(preference: Preference, metadata: PreferenceMetadata) {
         super.bind(preference, metadata)

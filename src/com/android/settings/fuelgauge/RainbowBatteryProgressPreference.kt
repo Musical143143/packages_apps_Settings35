@@ -22,6 +22,7 @@ import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.graphics.Color
 import android.provider.Settings
+import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.LinearInterpolator
@@ -35,7 +36,8 @@ import com.android.settingslib.widget.UsageProgressBarPreference
  * mode uses richer tones. The animation pauses when the bar leaves the window and is skipped
  * when system animations are turned off.
  */
-class RainbowBatteryProgressPreference(context: Context) : UsageProgressBarPreference(context) {
+class RainbowBatteryProgressPreference(context: Context, attrs: AttributeSet?) :
+    UsageProgressBarPreference(context, attrs) {
 
     override fun onBindViewHolder(holder: PreferenceViewHolder) {
         super.onBindViewHolder(holder)
