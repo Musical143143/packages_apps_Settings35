@@ -108,7 +108,31 @@ enum class ChevronStyle {
     HALO,
 }
 
-enum class CornerStyle(val radius: Dp) { SOFT(16.dp), ROUNDED(24.dp), PILL(32.dp) }
+enum class CornerStyle(val radius: Dp) {
+    SOFT(16.dp),
+    ROUNDED(24.dp),
+    PILL(32.dp),
+    SQUARE(0.dp),
+    HAIRLINE(2.dp),
+    TINY(4.dp),
+    SUBTLE(6.dp),
+    SMALL(8.dp),
+    COMPACT(10.dp),
+    MEDIUM(12.dp),
+    COMFORTABLE(14.dp),
+    RELAXED(18.dp),
+    LARGE(20.dp),
+    GENEROUS(22.dp),
+    SOFT_LARGE(26.dp),
+    EXTRA_SOFT(28.dp),
+    BUBBLE(36.dp),
+    SUPER(40.dp),
+    ROUNDER(44.dp),
+    ROUND(48.dp),
+    HUGE(56.dp),
+    BLOB(64.dp),
+    MAX(72.dp),
+}
 
 enum class DividerStyle {
     NONE,
