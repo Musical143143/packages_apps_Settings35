@@ -1254,6 +1254,10 @@ internal fun DividerStyle.displayName(): String = when (this) {
     DividerStyle.FULL -> "Full"
     DividerStyle.THICK -> "Thick"
     DividerStyle.SPLIT -> "Split cards"
+    DividerStyle.ACCENT -> "Accent"
+    DividerStyle.DASHED -> "Dashed"
+    DividerStyle.DOUBLE -> "Double"
+    DividerStyle.FADE -> "Fade"
 }
 
 internal fun HeaderSize.displayName(): String = when (this) {

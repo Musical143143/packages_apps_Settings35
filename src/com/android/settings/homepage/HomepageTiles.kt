@@ -23,6 +23,10 @@ import android.provider.Settings
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.Crossfade
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.core.LinearEasing
@@ -642,6 +646,61 @@ internal fun HomepageDivider(
         )
 
         DividerStyle.SPLIT -> Unit
+
+        DividerStyle.ACCENT -> HorizontalDivider(
+            modifier = Modifier.padding(horizontal = 16.dp),
+            thickness = 2.dp,
+            color = scheme.primary.copy(alpha = 0.6f),
+        )
+
+        DividerStyle.DASHED -> {
+            val dashColor = scheme.outlineVariant
+            Spacer(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth()
+                    .height(1.dp)
+                    .drawBehind {
+                        drawLine(
+                            color = dashColor,
+                            start = Offset(0f, size.height / 2f),
+                            end = Offset(size.width, size.height / 2f),
+                            strokeWidth = size.height,
+                            pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 8f)),
+                        )
+                    },
+            )
+        }
+
+        DividerStyle.DOUBLE -> Column {
+            HorizontalDivider(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                thickness = 1.dp,
+                color = scheme.outlineVariant.copy(alpha = 0.6f),
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            HorizontalDivider(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                thickness = 1.dp,
+                color = scheme.outlineVariant.copy(alpha = 0.6f),
+            )
+        }
+
+        DividerStyle.FADE -> {
+            val fadeEdge = scheme.outlineVariant
+            Spacer(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(1.dp)
+                    .drawBehind {
+                        drawRect(
+                            brush = Brush.horizontalGradient(
+                                colors = listOf(Color.Transparent, fadeEdge, Color.Transparent),
+                            ),
+                        )
+                    },
+            )
+        }
     }
 }
 

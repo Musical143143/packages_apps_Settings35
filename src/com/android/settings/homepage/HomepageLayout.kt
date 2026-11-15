@@ -97,6 +97,10 @@ enum class DividerStyle {
     FULL,
     THICK,
     SPLIT,
+    ACCENT,
+    DASHED,
+    DOUBLE,
+    FADE,
 }
 
 enum class HeaderSize { LARGE, COMPACT }
