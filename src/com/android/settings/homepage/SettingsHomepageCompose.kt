@@ -647,6 +647,7 @@ private fun ChromeContent(
             onClick = { if (!editing) onSearchClick() },
             modifier = modifier.fillMaxWidth(),
             elevated = false,
+            rotating = true,
         )
 
         ChromeKind.SEARCH_BREAK -> CardBreakCell(
