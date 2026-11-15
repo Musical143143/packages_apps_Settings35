@@ -714,6 +714,7 @@ private fun BottomChrome(
                         onClick = onSearchClick,
                         glass = glass,
                         modifier = Modifier.weight(1f),
+                        rotating = true,
                     )
                     Spacer(Modifier.width(10.dp))
                     EditModeButton(onClick = onEnterEditMode, glass = glass)

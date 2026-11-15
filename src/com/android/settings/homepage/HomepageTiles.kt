@@ -19,8 +19,19 @@ import android.content.res.ColorStateList
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.PorterDuff
+import android.provider.Settings
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -55,7 +66,11 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -71,9 +86,14 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
 
 internal val GRID_TILE_SPACING = 12.dp
 internal val SEARCH_BAR_HEIGHT = 56.dp
@@ -98,7 +118,108 @@ internal val SEARCH_HINTS = listOf(
     "Lost? Tap to search",
     "What are we looking for today?",
     "Psst… search lives down here",
+    "Hi there, what can I find for you?",
+    "Hello! Search your settings",
+    "Welcome back",
+    "Good to see you",
+    "Ready when you are",
+    "What shall we tweak today?",
+    "Hey, nice to have you here",
+    "Let's get things done",
+    "Looking for something?",
+    "Tap here and type away",
+    "Your settings, one search away",
+    "Hi, owner. Where to next?",
+    "Need a setting? Search it",
+    "Find anything in Settings",
+    "Good day! What's on your mind?",
+    "Search for Wi-Fi, display, or sound",
+    "Make it yours, start searching",
+    "Hungry for a setting? Search",
+    "Let's find what you need",
+    "Pssst… try searching",
+    "Hello, traveler. Seek and find",
+    "All set. What do you need?",
+    "Customize anything. Just search",
 )
+
+private const val GREETING_INTERVAL_MS = 3000L
+private const val RAINBOW_CYCLE_MS = 6000
+private const val RAINBOW_HUE_STEP_DEGREES = 15f
+private const val GREETING_FADE_MS = 400
+
+/** Picks a random greeting index that is different from [current]. */
+private fun nextGreetingIndex(current: Int): Int =
+    (SEARCH_HINTS.indices - current).random()
+
+/**
+ * Colors each character with a hue that moves over time and offsets by position, so a smooth
+ * RGB wave runs through the text. Saturation and brightness are tuned per theme for contrast.
+ */
+private fun rainbowGreeting(text: String, phase: Float, isDark: Boolean): AnnotatedString {
+    val saturation = if (isDark) 0.55f else 0.9f
+    val brightness = if (isDark) 1f else 0.72f
+    return buildAnnotatedString {
+        text.forEachIndexed { index, char ->
+            val hue = (phase * 360f + index * RAINBOW_HUE_STEP_DEGREES) % 360f
+            withStyle(SpanStyle(color = Color.hsv(hue, saturation, brightness))) {
+                append(char)
+            }
+        }
+    }
+}
+
+/**
+ * Shows a greeting from [SEARCH_HINTS] that changes every few seconds with a fade, drawn in
+ * an animated RGB gradient. Freezes the color cycle when animations are turned off.
+ */
+@Composable
+private fun RotatingSearchHint(modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    val animationsEnabled = remember(context) {
+        Settings.Global.getFloat(
+            context.contentResolver,
+            Settings.Global.ANIMATOR_DURATION_SCALE,
+            1f,
+        ) > 0f
+    }
+    var index by remember { mutableIntStateOf(SEARCH_HINTS.indices.random()) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(GREETING_INTERVAL_MS)
+            index = nextGreetingIndex(index)
+        }
+    }
+
+    val transition = rememberInfiniteTransition(label = "searchHintRgb")
+    val animatedPhase by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = RAINBOW_CYCLE_MS, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart,
+        ),
+        label = "searchHintRgbPhase",
+    )
+    val phase = if (animationsEnabled) animatedPhase else 0f
+    val isDark = MaterialTheme.colorScheme.surfaceBright.luminance() < 0.5f
+
+    AnimatedContent(
+        targetState = index,
+        modifier = modifier,
+        transitionSpec = {
+            fadeIn(tween(GREETING_FADE_MS)) togetherWith fadeOut(tween(GREETING_FADE_MS))
+        },
+        label = "searchHintGreeting",
+    ) { current ->
+        Text(
+            text = rainbowGreeting(SEARCH_HINTS[current], phase, isDark),
+            style = MaterialTheme.typography.bodyLarge,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
+}
 
 data class TileStyle(
     val corner: Dp,
@@ -597,7 +718,7 @@ internal fun HomepageSwitch(
 }
 
 @Composable
-private fun SearchBarBody(size: TileSize, hint: String) {
+private fun SearchBarBody(size: TileSize, hint: String, rotating: Boolean = false) {
     Row(
         modifier = Modifier
             .fillMaxSize()
@@ -617,13 +738,17 @@ private fun SearchBarBody(size: TileSize, hint: String) {
         )
         if (size.width == TileWidth.FULL) {
             Spacer(modifier = Modifier.width(16.dp))
-            Text(
-                text = hint,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.bodyLarge,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
+            if (rotating) {
+                RotatingSearchHint(modifier = Modifier.weight(1f))
+            } else {
+                Text(
+                    text = hint,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyLarge,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
         }
     }
 }
@@ -635,6 +760,7 @@ internal fun PinnedSearchBar(
     modifier: Modifier = Modifier,
     elevated: Boolean = true,
     glass: HomepageGlassBackdrop? = null,
+    rotating: Boolean = false,
 ) {
     val shape = RoundedCornerShape(SEARCH_BAR_RADIUS)
     Surface(
@@ -663,7 +789,7 @@ internal fun PinnedSearchBar(
         shadowElevation = if (elevated) 12.dp else 0.dp,
         tonalElevation = if (elevated && glass == null) 6.dp else 0.dp,
     ) {
-        SearchBarBody(size = TileSize.ROW, hint = hint)
+        SearchBarBody(size = TileSize.ROW, hint = hint, rotating = rotating)
     }
 }
 
