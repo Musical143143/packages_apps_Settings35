@@ -38,6 +38,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -773,7 +774,7 @@ internal fun AppearancePanel(
     var expanded by rememberSaveable { mutableStateOf(false) }
     Surface(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(layout.cornerStyle.radius),
+        shape = layout.cornerStyle.shape,
         color = MaterialTheme.colorScheme.surfaceBright,
     ) {
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
@@ -1024,13 +1025,13 @@ internal fun AppearancePanel(
 @Composable
 internal fun HiddenTray(
     items: List<HomepageItem>,
-    corner: Dp,
+    cornerShape: Shape,
     onRestore: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(corner),
+        shape = cornerShape,
         color = Color.Transparent,
         border = BorderStroke(
             1.dp,
@@ -1285,6 +1286,13 @@ internal fun CornerStyle.displayName(): String = when (this) {
     CornerStyle.HUGE -> "Huge"
     CornerStyle.BLOB -> "Blob"
     CornerStyle.MAX -> "Max"
+    CornerStyle.CUT -> "Cut"
+    CornerStyle.BEVEL -> "Bevel"
+    CornerStyle.LEAF -> "Leaf"
+    CornerStyle.LEAF_REVERSE -> "Leaf reverse"
+    CornerStyle.TOP_ROUND -> "Top round"
+    CornerStyle.BOTTOM_ROUND -> "Bottom round"
+    CornerStyle.SPLIT -> "Split"
 }
 
 internal fun DividerStyle.displayName(): String = when (this) {

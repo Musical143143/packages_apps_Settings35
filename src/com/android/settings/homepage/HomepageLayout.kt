@@ -17,6 +17,9 @@ package com.android.settings.homepage
 
 import android.content.Context
 import android.util.Log
+import androidx.compose.foundation.shape.CutCornerShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import org.json.JSONArray
@@ -108,7 +111,10 @@ enum class ChevronStyle {
     HALO,
 }
 
-enum class CornerStyle(val radius: Dp) {
+enum class CornerStyle(
+    val radius: Dp,
+    private val factory: (Dp) -> Shape = { RoundedCornerShape(it) },
+) {
     SOFT(16.dp),
     ROUNDED(24.dp),
     PILL(32.dp),
@@ -132,6 +138,19 @@ enum class CornerStyle(val radius: Dp) {
     HUGE(56.dp),
     BLOB(64.dp),
     MAX(72.dp),
+
+    // Premium corners: asymmetric, cut and beveled outlines.
+    CUT(24.dp, { CutCornerShape(it) }),
+    BEVEL(12.dp, { CutCornerShape(it) }),
+    LEAF(28.dp, { RoundedCornerShape(topStart = it, topEnd = 4.dp, bottomEnd = it, bottomStart = 4.dp) }),
+    LEAF_REVERSE(28.dp, { RoundedCornerShape(topStart = 4.dp, topEnd = it, bottomEnd = 4.dp, bottomStart = it) }),
+    TOP_ROUND(28.dp, { RoundedCornerShape(topStart = it, topEnd = it, bottomEnd = 4.dp, bottomStart = 4.dp) }),
+    BOTTOM_ROUND(28.dp, { RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp, bottomEnd = it, bottomStart = it) }),
+    SPLIT(28.dp, { RoundedCornerShape(topStart = it, topEnd = 0.dp, bottomEnd = it, bottomStart = 0.dp) });
+
+    /** The outline a tile or panel uses for this corner style. */
+    val shape: Shape
+        get() = factory(radius)
 }
 
 enum class DividerStyle {
