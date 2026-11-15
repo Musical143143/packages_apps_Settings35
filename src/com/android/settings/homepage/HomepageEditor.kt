@@ -1249,6 +1249,16 @@ internal fun ChevronStyle.displayName(): String = when (this) {
     ChevronStyle.DOWN -> "Down"
     ChevronStyle.UP -> "Up"
     ChevronStyle.LARGE -> "Large"
+    ChevronStyle.SHADOW -> "Shadow"
+    ChevronStyle.DIAGONAL -> "Diagonal"
+    ChevronStyle.TILT -> "Tilt"
+    ChevronStyle.SECONDARY -> "Secondary"
+    ChevronStyle.TERTIARY -> "Tertiary"
+    ChevronStyle.MUTED -> "Muted"
+    ChevronStyle.GHOST -> "Ghost"
+    ChevronStyle.SQUARE_OUTLINED -> "Outlined square"
+    ChevronStyle.PILL_FILLED -> "Filled pill"
+    ChevronStyle.HALO -> "Halo"
 }
 
 internal fun CornerStyle.displayName(): String = when (this) {

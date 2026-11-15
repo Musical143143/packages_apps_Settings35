@@ -26,6 +26,7 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.border
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Path
@@ -904,10 +905,12 @@ private fun ChevronBadge(
     glyphTint: Color,
     width: Dp = size + CHEVRON_CONTAINER_PADDING * 2,
     border: Color? = null,
+    elevation: Dp = 0.dp,
 ) {
     Box(
         modifier = Modifier
             .size(width = width, height = size + CHEVRON_CONTAINER_PADDING * 2)
+            .shadow(elevation, shape)
             .clip(shape)
             .background(container)
             .then(if (border != null) Modifier.border(1.dp, border, shape) else Modifier),
@@ -978,6 +981,54 @@ private fun Chevron(style: ChevronStyle, size: Dp = 24.dp) {
         ChevronStyle.UP -> ChevronGlyph(tint = neutral, size = size, rotationDegrees = -90f)
 
         ChevronStyle.LARGE -> ChevronGlyph(tint = neutral, size = size + 8.dp)
+
+        ChevronStyle.SHADOW -> ChevronBadge(
+            shape = CircleShape,
+            container = scheme.surfaceContainerHigh,
+            size = size,
+            glyphTint = neutral,
+            elevation = 4.dp,
+        )
+
+        ChevronStyle.DIAGONAL -> ChevronGlyph(tint = neutral, size = size, rotationDegrees = 45f)
+
+        ChevronStyle.TILT -> ChevronGlyph(tint = neutral, size = size, rotationDegrees = -45f)
+
+        ChevronStyle.SECONDARY -> ChevronGlyph(tint = scheme.secondary, size = size)
+
+        ChevronStyle.TERTIARY -> ChevronGlyph(tint = scheme.tertiary, size = size)
+
+        ChevronStyle.MUTED -> ChevronGlyph(tint = neutral.copy(alpha = 0.4f), size = size)
+
+        ChevronStyle.GHOST -> ChevronBadge(
+            shape = CircleShape,
+            container = scheme.surfaceVariant.copy(alpha = 0.5f),
+            size = size,
+            glyphTint = neutral,
+        )
+
+        ChevronStyle.SQUARE_OUTLINED -> ChevronBadge(
+            shape = RoundedCornerShape(12.dp),
+            container = Color.Transparent,
+            size = size,
+            glyphTint = neutral,
+            border = scheme.outlineVariant,
+        )
+
+        ChevronStyle.PILL_FILLED -> ChevronBadge(
+            shape = RoundedCornerShape(percent = 50),
+            container = scheme.primary,
+            size = size,
+            glyphTint = scheme.onPrimary,
+            width = size * 1.6f + CHEVRON_CONTAINER_PADDING * 2,
+        )
+
+        ChevronStyle.HALO -> ChevronBadge(
+            shape = CircleShape,
+            container = scheme.primary.copy(alpha = 0.15f),
+            size = size,
+            glyphTint = scheme.primary,
+        )
 
         ChevronStyle.PLAIN, ChevronStyle.HIDDEN -> ChevronGlyph(tint = neutral, size = size)
     }
