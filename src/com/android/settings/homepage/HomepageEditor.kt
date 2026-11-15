@@ -638,6 +638,7 @@ internal fun ShapePickerDialog(
     selected: IconShape,
     onPick: (IconShape) -> Unit,
     onDismiss: () -> Unit,
+    shapes: List<IconShape> = TILE_ICON_SHAPES,
     previewIcon: ImageVector? = Icons.Outlined.Settings,
     @DrawableRes previewIconRes: Int? = null,
     previewTinted: Boolean = true,
@@ -656,7 +657,7 @@ internal fun ShapePickerDialog(
                     verticalArrangement = Arrangement.spacedBy(4.dp),
                     maxItemsInEachRow = 4,
                 ) {
-                    IconShape.values().forEach { shape ->
+                    shapes.forEach { shape ->
                         ShapeSwatch(
                             shape = shape,
                             selected = shape == selected,
@@ -1217,6 +1218,16 @@ internal fun IconShape.displayName(): String = when (this) {
     IconShape.CLOVER_8 -> "Clover 8"
     IconShape.BURST -> "Burst"
     IconShape.FLOWER -> "Flower"
+    IconShape.OVAL -> "Oval"
+    IconShape.ARCH -> "Arch"
+    IconShape.SLANTED -> "Slanted"
+    IconShape.FAN -> "Fan"
+    IconShape.SEMI_CIRCLE -> "Semicircle"
+    IconShape.PUFFY -> "Puffy"
+    IconShape.PUFFY_DIAMOND -> "Puffy diamond"
+    IconShape.BOOM -> "Boom"
+    IconShape.SOFT_BURST -> "Soft burst"
+    IconShape.GHOSTISH -> "Ghost"
 }
 
 internal fun IconPosition.displayName(): String = when (this) {

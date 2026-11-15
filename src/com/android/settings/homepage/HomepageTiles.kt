@@ -271,6 +271,16 @@ internal fun IconShape.containerShape(): Shape = when (this) {
     IconShape.CLOVER_8 -> MaterialShapes.Clover8Leaf.toShape()
     IconShape.BURST -> MaterialShapes.Burst.toShape()
     IconShape.FLOWER -> MaterialShapes.Flower.toShape()
+    IconShape.OVAL -> MaterialShapes.Oval.toShape()
+    IconShape.ARCH -> MaterialShapes.Arch.toShape()
+    IconShape.SLANTED -> MaterialShapes.Slanted.toShape()
+    IconShape.FAN -> MaterialShapes.Fan.toShape()
+    IconShape.SEMI_CIRCLE -> MaterialShapes.SemiCircle.toShape()
+    IconShape.PUFFY -> MaterialShapes.Puffy.toShape()
+    IconShape.PUFFY_DIAMOND -> MaterialShapes.PuffyDiamond.toShape()
+    IconShape.BOOM -> MaterialShapes.Boom.toShape()
+    IconShape.SOFT_BURST -> MaterialShapes.SoftBurst.toShape()
+    IconShape.GHOSTISH -> MaterialShapes.Ghostish.toShape()
 }
 
 @Composable

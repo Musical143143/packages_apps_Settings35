@@ -66,7 +66,21 @@ enum class IconStyle { ACCENT, PLAIN, FILLED }
 enum class IconShape {
     CIRCLE, ARROW, PILL, TRIANGLE, GEM, COOKIE_4, COOKIE_6, CLOVER_4,
     SQUARE, DIAMOND, PENTAGON, SUNNY, COOKIE_7, COOKIE_9, COOKIE_12, CLOVER_8, BURST, FLOWER,
+    // Avatar-only shapes: offered in the avatar picker, not on tiles.
+    OVAL, ARCH, SLANTED, FAN, SEMI_CIRCLE, PUFFY, PUFFY_DIAMOND, BOOM, SOFT_BURST, GHOSTISH,
 }
+
+private val AVATAR_ONLY_ICON_SHAPES: Set<IconShape> = setOf(
+    IconShape.OVAL, IconShape.ARCH, IconShape.SLANTED, IconShape.FAN, IconShape.SEMI_CIRCLE,
+    IconShape.PUFFY, IconShape.PUFFY_DIAMOND, IconShape.BOOM, IconShape.SOFT_BURST,
+    IconShape.GHOSTISH,
+)
+
+/** Shapes offered when picking a tile, page or item icon shape. */
+val TILE_ICON_SHAPES: List<IconShape> = IconShape.values().filterNot { it in AVATAR_ONLY_ICON_SHAPES }
+
+/** Shapes offered when picking the avatar shape: every shape, including avatar-only ones. */
+val AVATAR_ICON_SHAPES: List<IconShape> = IconShape.values().toList()
 enum class IconPosition { START, END }
 enum class ChevronStyle {
     PLAIN,

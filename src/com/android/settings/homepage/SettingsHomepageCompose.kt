@@ -545,6 +545,7 @@ fun SettingsHomepageScreen(
             shapeTarget is ShapeTarget.Avatar -> ShapePickerDialog(
                 title = "Avatar",
                 selected = layout.header.avatarShape,
+                shapes = AVATAR_ICON_SHAPES,
                 previewIcon = Icons.Outlined.AccountCircle,
                 iconStyle = IconStyle.FILLED,
                 iconColor = MaterialTheme.colorScheme.surfaceBright,
