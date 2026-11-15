@@ -66,6 +66,7 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -511,6 +512,7 @@ private fun PickerRow(
     inheritedFrom: String,
     onClick: () -> Unit,
     onReset: () -> Unit,
+    showEditButton: Boolean = false,
     preview: @Composable () -> Unit,
 ) {
     Row(
@@ -535,6 +537,16 @@ private fun PickerRow(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
+        if (showEditButton) {
+            Spacer(Modifier.width(4.dp))
+            IconButton(onClick = onClick) {
+                Icon(
+                    imageVector = Icons.Outlined.Edit,
+                    contentDescription = "Edit $label colour",
+                    tint = MaterialTheme.colorScheme.primary,
+                )
+            }
+        }
         if (overridden) {
             Spacer(Modifier.width(8.dp))
             CornerResetButton(description = "Reset $label", onClick = onReset)
@@ -557,6 +569,7 @@ private fun ColorRow(
         inheritedFrom = inheritedFrom,
         onClick = onClick,
         onReset = onReset,
+        showEditButton = true,
     ) {
         Box(
             modifier = Modifier
