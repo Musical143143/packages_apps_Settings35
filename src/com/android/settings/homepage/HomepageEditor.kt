@@ -1258,6 +1258,16 @@ internal fun DividerStyle.displayName(): String = when (this) {
     DividerStyle.DASHED -> "Dashed"
     DividerStyle.DOUBLE -> "Double"
     DividerStyle.FADE -> "Fade"
+    DividerStyle.DOTTED -> "Dotted"
+    DividerStyle.DASH_DOT -> "Dash dot"
+    DividerStyle.WAVY -> "Wavy"
+    DividerStyle.ZIGZAG -> "Zigzag"
+    DividerStyle.GRADIENT -> "Gradient"
+    DividerStyle.SHORT -> "Short"
+    DividerStyle.TRIPLE -> "Triple"
+    DividerStyle.ROUNDED -> "Rounded"
+    DividerStyle.SHADOW -> "Shadow"
+    DividerStyle.RAINBOW -> "Rainbow"
 }
 
 internal fun HeaderSize.displayName(): String = when (this) {

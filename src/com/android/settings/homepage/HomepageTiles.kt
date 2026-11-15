@@ -26,7 +26,11 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
+import kotlin.math.sin
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.core.LinearEasing
@@ -686,6 +690,10 @@ internal fun HomepageDivider(
             )
         }
 
+        DividerStyle.DOTTED, DividerStyle.DASH_DOT, DividerStyle.WAVY, DividerStyle.ZIGZAG,
+        DividerStyle.GRADIENT, DividerStyle.SHORT, DividerStyle.TRIPLE, DividerStyle.ROUNDED,
+        DividerStyle.SHADOW, DividerStyle.RAINBOW -> DecorativeDivider(style)
+
         DividerStyle.FADE -> {
             val fadeEdge = scheme.outlineVariant
             Spacer(
@@ -701,6 +709,141 @@ internal fun HomepageDivider(
                     },
             )
         }
+    }
+}
+
+/** Draws the extra divider styles. Each is one row-height element between tiles. */
+@Composable
+private fun DecorativeDivider(style: DividerStyle) {
+    val scheme = MaterialTheme.colorScheme
+    val lineColor = scheme.outlineVariant
+    val accent = scheme.primary
+    val sideInset = Modifier.padding(horizontal = 16.dp).fillMaxWidth()
+    when (style) {
+        DividerStyle.DOTTED -> Spacer(
+            modifier = sideInset.height(3.dp).drawBehind {
+                drawLine(
+                    color = lineColor,
+                    start = Offset(0f, size.height / 2f),
+                    end = Offset(size.width, size.height / 2f),
+                    strokeWidth = size.height,
+                    cap = StrokeCap.Round,
+                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(0.1f, size.height * 3f)),
+                )
+            },
+        )
+
+        DividerStyle.DASH_DOT -> Spacer(
+            modifier = sideInset.height(2.dp).drawBehind {
+                drawLine(
+                    color = lineColor,
+                    start = Offset(0f, size.height / 2f),
+                    end = Offset(size.width, size.height / 2f),
+                    strokeWidth = size.height,
+                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(14f, 6f, 2f, 6f)),
+                )
+            },
+        )
+
+        DividerStyle.WAVY -> Spacer(
+            modifier = sideInset.height(12.dp).drawBehind {
+                val mid = size.height / 2f
+                val amplitude = size.height / 3f
+                val path = Path()
+                path.moveTo(0f, mid)
+                var x = 0f
+                while (x <= size.width) {
+                    path.lineTo(x, mid + amplitude * sin(x / 6f))
+                    x += 4f
+                }
+                drawPath(path, color = lineColor, style = Stroke(width = 1.5f.dp.toPx()))
+            },
+        )
+
+        DividerStyle.ZIGZAG -> Spacer(
+            modifier = sideInset.height(8.dp).drawBehind {
+                val top = size.height * 0.2f
+                val bottom = size.height * 0.8f
+                val path = Path()
+                path.moveTo(0f, top)
+                var x = 0f
+                var up = false
+                while (x <= size.width) {
+                    path.lineTo(x, if (up) top else bottom)
+                    up = !up
+                    x += 6f
+                }
+                drawPath(path, color = lineColor, style = Stroke(width = 1.5f.dp.toPx()))
+            },
+        )
+
+        DividerStyle.GRADIENT -> Spacer(
+            modifier = sideInset.height(2.dp).drawBehind {
+                drawRect(
+                    brush = Brush.horizontalGradient(
+                        colors = listOf(accent.copy(alpha = 0.2f), accent, accent.copy(alpha = 0.2f)),
+                    ),
+                )
+            },
+        )
+
+        DividerStyle.SHORT -> Box(
+            modifier = Modifier.fillMaxWidth().height(2.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Spacer(
+                modifier = Modifier
+                    .width(48.dp)
+                    .height(2.dp)
+                    .background(accent.copy(alpha = 0.6f), RoundedCornerShape(1.dp)),
+            )
+        }
+
+        DividerStyle.TRIPLE -> Column {
+            repeat(3) { index ->
+                if (index > 0) Spacer(modifier = Modifier.height(2.dp))
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    thickness = 1.dp,
+                    color = lineColor.copy(alpha = 0.6f),
+                )
+            }
+        }
+
+        DividerStyle.ROUNDED -> Spacer(
+            modifier = sideInset.height(4.dp)
+                .background(lineColor.copy(alpha = 0.7f), RoundedCornerShape(2.dp)),
+        )
+
+        DividerStyle.SHADOW -> Spacer(
+            modifier = Modifier.fillMaxWidth().height(4.dp).drawBehind {
+                drawRect(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(Color.Black.copy(alpha = 0.25f), Color.Transparent),
+                    ),
+                )
+            },
+        )
+
+        DividerStyle.RAINBOW -> Spacer(
+            modifier = sideInset.height(2.dp).drawBehind {
+                drawRect(
+                    brush = Brush.horizontalGradient(
+                        colors = listOf(
+                            Color.hsv(0f, 0.7f, 1f),
+                            Color.hsv(60f, 0.7f, 1f),
+                            Color.hsv(120f, 0.7f, 1f),
+                            Color.hsv(180f, 0.7f, 1f),
+                            Color.hsv(240f, 0.7f, 1f),
+                            Color.hsv(300f, 0.7f, 1f),
+                            Color.hsv(360f, 0.7f, 1f),
+                        ),
+                    ),
+                )
+            },
+        )
+
+        else -> Unit
     }
 }
 

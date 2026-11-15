@@ -101,6 +101,16 @@ enum class DividerStyle {
     DASHED,
     DOUBLE,
     FADE,
+    DOTTED,
+    DASH_DOT,
+    WAVY,
+    ZIGZAG,
+    GRADIENT,
+    SHORT,
+    TRIPLE,
+    ROUNDED,
+    SHADOW,
+    RAINBOW,
 }
 
 enum class HeaderSize { LARGE, COMPACT }
