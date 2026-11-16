@@ -78,6 +78,20 @@ private val GREETING_PILL_SHAPE = RoundedCornerShape(50)
 private val RING_WIDTH = 3.dp
 
 /** General greetings, shown at any time of day. */
+/**
+ * Smaller text for longer greetings, so a long message stays neat in the pill.
+ * Every line still shows; only the size steps down.
+ */
+private fun fittedFontSize(text: String, compact: Boolean): Int {
+    val base = if (compact) COMPACT_FONT_SIZE else GREETING_FONT_SIZE
+    val step = when {
+        text.length <= 14 -> 0
+        text.length <= 22 -> 1
+        else -> 2
+    }
+    return base - step * (if (compact) 2 else 6)
+}
+
 private val GENERAL_GREETINGS = listOf(
     "Hello, traveler",
     "Welcome back",
@@ -180,7 +194,6 @@ internal fun TimeGreeting(
     val compact = size == GreetingSize.COMPACT
     // The pill border follows the Settings border style: width, colour and on/off switch.
     val pillBorder = glassBorderBrush(borderColor)
-    val fontSize = if (compact) COMPACT_FONT_SIZE else GREETING_FONT_SIZE
     // Show every line of the greeting; it wraps instead of being cut off with an ellipsis.
     val maxLines = Int.MAX_VALUE
     val context = LocalContext.current
@@ -245,6 +258,7 @@ internal fun TimeGreeting(
     }
     val color = greetingRgb(phase, isDark)
     val typeface = font.typeface()
+    val fontSize = fittedFontSize(greeting, compact)
 
     Box(modifier = modifier.fillMaxWidth()) {
         Text(
