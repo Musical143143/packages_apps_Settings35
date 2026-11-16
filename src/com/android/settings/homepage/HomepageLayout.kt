@@ -240,6 +240,8 @@ data class HomepageLayout(
     val dividerStyle: DividerStyle = DividerStyle.INSET,
     val tapAnimation: TapAnimation = TapAnimation.RIPPLE,
     val animateIcons: Boolean = true,
+    val borderEnabled: Boolean = true,
+    val borderColor: Int? = null,
 ) {
 
     fun sizeOf(key: String, default: TileSize): TileSize = sizes[key] ?: default
@@ -308,6 +310,10 @@ data class HomepageLayout(
         copy(iconColors = iconColors + (key to argb.opaque()))
 
     fun resetIconColor(): HomepageLayout = if (iconColor != null) copy(iconColor = null) else this
+
+    fun withBorderColor(argb: Int): HomepageLayout = copy(borderColor = argb.opaque())
+
+    fun resetBorderColor(): HomepageLayout = if (borderColor != null) copy(borderColor = null) else this
 
     /**
      * Applies the One UI style: large soft corners, separated cards, filled icons, a top search
@@ -483,6 +489,8 @@ internal object HomepageLayoutJson {
     private const val KEY_DIVIDER_STYLE = "dividerStyle"
     private const val KEY_TAP_ANIMATION = "tapAnimation"
     private const val KEY_ANIMATE_ICONS = "animateIcons"
+    private const val KEY_BORDER_ENABLED = "borderEnabled"
+    private const val KEY_BORDER_COLOR = "borderColor"
 
     private const val KEY_SHOW_TITLE = "showTitle"
     private const val KEY_CUSTOM_TITLE = "customTitle"
@@ -544,6 +552,8 @@ internal object HomepageLayoutJson {
         put(KEY_DIVIDER_STYLE, layout.dividerStyle.name)
         put(KEY_TAP_ANIMATION, layout.tapAnimation.name)
         put(KEY_ANIMATE_ICONS, layout.animateIcons)
+        put(KEY_BORDER_ENABLED, layout.borderEnabled)
+        layout.borderColor?.let { put(KEY_BORDER_COLOR, it) }
     }.toString()
 
     fun decode(raw: String?, fallback: HomepageLayout): HomepageLayout {
@@ -575,6 +585,8 @@ internal object HomepageLayoutJson {
                 dividerStyle = enumOr(json.optString(KEY_DIVIDER_STYLE), fallback.dividerStyle),
                 tapAnimation = enumOr(json.optString(KEY_TAP_ANIMATION), fallback.tapAnimation),
                 animateIcons = json.optBoolean(KEY_ANIMATE_ICONS, fallback.animateIcons),
+                borderEnabled = json.optBoolean(KEY_BORDER_ENABLED, fallback.borderEnabled),
+                borderColor = json.optArgb(KEY_BORDER_COLOR, fallback.borderColor),
             )
         } catch (e: Exception) {
             Log.w(TAG, "Discarding unreadable homepage layout", e)

@@ -779,6 +779,7 @@ internal fun AppearancePanel(
     defaultTitle: String,
     onLayout: (HomepageLayout) -> Unit,
     onPickIconColor: () -> Unit,
+    onPickBorderColor: () -> Unit,
     onPickIconShape: () -> Unit,
     onPickAvatarShape: () -> Unit,
     onAddBreak: () -> Unit,
@@ -967,6 +968,20 @@ internal fun AppearancePanel(
                         inheritedFrom = "theme accent",
                         onClick = onPickIconColor,
                         onReset = { onLayout(layout.resetIconColor()) },
+                    )
+                    SwitchRow(
+                        label = "Borders",
+                        checked = layout.borderEnabled,
+                        onCheckedChange = { onLayout(layout.copy(borderEnabled = it)) },
+                    )
+                    ColorRow(
+                        label = "Border colour",
+                        color = layout.borderColor?.let { Color(it) }
+                            ?: MaterialTheme.colorScheme.onSurface,
+                        overridden = layout.borderColor != null,
+                        inheritedFrom = "theme outline",
+                        onClick = onPickBorderColor,
+                        onReset = { onLayout(layout.resetBorderColor()) },
                     )
                     val colorOverrides = layout.iconColors.size
                     if (colorOverrides > 0) {

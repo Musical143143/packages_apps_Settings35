@@ -258,6 +258,8 @@ data class TileStyle(
     val chevronStyle: ChevronStyle = ChevronStyle.PLAIN,
     val tapAnimation: TapAnimation = TapAnimation.RIPPLE,
     val animateIcons: Boolean = true,
+    val borderEnabled: Boolean = true,
+    val borderColor: Color? = null,
 )
 
 fun HomepageLayout.tileStyle(): TileStyle = TileStyle(
@@ -272,6 +274,8 @@ fun HomepageLayout.tileStyle(): TileStyle = TileStyle(
     chevronStyle = chevronStyle,
     tapAnimation = tapAnimation,
     animateIcons = animateIcons,
+    borderEnabled = borderEnabled,
+    borderColor = borderColor?.let { Color(it) },
 )
 
 internal fun TileSize.fixedHeight(): Dp? = when (this) {
@@ -499,10 +503,16 @@ internal fun HomepageTile(
                 .then(if (height != null) Modifier.height(height) else Modifier)
                 .clip(style.cornerShape)
                 .background(cardSurfaceColor(backdrop))
-                .border(
-                    width = GLASS_BORDER_WIDTH,
-                    brush = glassBorderBrush(),
-                    shape = style.cornerShape,
+                .then(
+                    if (style.borderEnabled) {
+                        Modifier.border(
+                            width = GLASS_BORDER_WIDTH,
+                            brush = glassBorderBrush(style.borderColor),
+                            shape = style.cornerShape,
+                        )
+                    } else {
+                        Modifier
+                    }
                 )
                 .then(if (clickable) Modifier.tapFeedback(style.tapAnimation, onClick) else Modifier),
         ) {
@@ -669,16 +679,26 @@ private val GLASS_BORDER_WIDTH = 2.dp
  * reads as a frosted pane in both light and dark mode.
  */
 @Composable
-internal fun glassBorderBrush(): Brush {
-    val base = MaterialTheme.colorScheme.onSurface
-    return remember(base) {
-        Brush.linearGradient(
-            colors = listOf(
-                base.copy(alpha = 0.55f),
-                base.copy(alpha = 0.12f),
-                base.copy(alpha = 0.40f),
-            ),
-        )
+internal fun glassBorderBrush(custom: Color? = null): Brush {
+    val base = custom ?: MaterialTheme.colorScheme.onSurface
+    return remember(base, custom == null) {
+        if (custom == null) {
+            Brush.linearGradient(
+                colors = listOf(
+                    base.copy(alpha = 0.55f),
+                    base.copy(alpha = 0.12f),
+                    base.copy(alpha = 0.40f),
+                ),
+            )
+        } else {
+            Brush.linearGradient(
+                colors = listOf(
+                    base.copy(alpha = 0.95f),
+                    base.copy(alpha = 0.5f),
+                    base.copy(alpha = 0.9f),
+                ),
+            )
+        }
     }
 }
 
@@ -718,10 +738,11 @@ internal fun HomepageCard(
         shape = style.cornerShape,
         color = cardSurfaceColor(backdrop),
         contentColor = MaterialTheme.colorScheme.onSurface,
-        border = BorderStroke(
-            GLASS_BORDER_WIDTH,
-            glassBorderBrush(),
-        ),
+        border = if (style.borderEnabled) {
+            BorderStroke(GLASS_BORDER_WIDTH, glassBorderBrush(style.borderColor))
+        } else {
+            null
+        },
     ) {
         Box {
             if (backdrop != null) CardBackdrop(backdrop)
