@@ -1271,6 +1271,7 @@ internal fun HomepageHeader(
                 TimeGreeting(
                     font = config.greetingFont,
                     position = config.greetingPosition,
+                    size = config.greetingSize,
                 )
                 Spacer(Modifier.height(8.dp))
             }

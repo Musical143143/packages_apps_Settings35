@@ -196,6 +196,9 @@ enum class GreetingFont {
     SERIF, SERIF_BOLD, SERIF_ITALIC, SERIF_LIGHT, MONO, MONO_BOLD, MONO_ITALIC, CURSIVE, CURSIVE_BOLD,
 }
 
+/** How large the time-based greeting is drawn. */
+enum class GreetingSize { HUGE, COMPACT }
+
 /** Where the time-based greeting sits: a fixed side, or sweeping left to right. */
 enum class GreetingPosition { SWEEP, LEFT, CENTER, RIGHT }
 
@@ -209,6 +212,7 @@ data class HeaderConfig(
     val showTimeGreeting: Boolean = false,
     val greetingFont: GreetingFont = GreetingFont.CLASSIC,
     val greetingPosition: GreetingPosition = GreetingPosition.SWEEP,
+    val greetingSize: GreetingSize = GreetingSize.HUGE,
 )
 
 data class HomepageLayout(
@@ -487,6 +491,7 @@ internal object HomepageLayoutJson {
     private const val KEY_SHOW_TIME_GREETING = "showTimeGreeting"
     private const val KEY_GREETING_FONT = "greetingFont"
     private const val KEY_GREETING_POSITION = "greetingPosition"
+    private const val KEY_GREETING_SIZE = "greetingSize"
 
     fun encode(layout: HomepageLayout): String = JSONObject().apply {
         put(KEY_VERSION, VERSION)
@@ -513,6 +518,7 @@ internal object HomepageLayoutJson {
             put(KEY_SHOW_TIME_GREETING, layout.header.showTimeGreeting)
             put(KEY_GREETING_FONT, layout.header.greetingFont.name)
             put(KEY_GREETING_POSITION, layout.header.greetingPosition.name)
+            put(KEY_GREETING_SIZE, layout.header.greetingSize.name)
         })
         put(KEY_SEARCH_BAR, layout.searchBar.name)
         put(KEY_SEARCH_BAR_BREAK, layout.searchBarBreak)
@@ -627,6 +633,7 @@ internal object HomepageLayoutJson {
             showTimeGreeting = optBoolean(KEY_SHOW_TIME_GREETING, fallback.showTimeGreeting),
             greetingFont = enumOr(optString(KEY_GREETING_FONT), fallback.greetingFont),
             greetingPosition = enumOr(optString(KEY_GREETING_POSITION), fallback.greetingPosition),
+            greetingSize = enumOr(optString(KEY_GREETING_SIZE), fallback.greetingSize),
         )
     }
 }

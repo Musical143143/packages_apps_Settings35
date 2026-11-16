@@ -70,6 +70,7 @@ import java.util.WeakHashMap
 private const val RGB_CYCLE_MS = 6000
 private const val MOVE_HALF_CYCLE_MS = 2500
 private const val GREETING_FONT_SIZE = 44
+private const val COMPACT_FONT_SIZE = 24
 private const val RING_CYCLE_MS = 4000
 private val RING_WIDTH = 3.dp
 
@@ -163,6 +164,12 @@ internal fun GreetingPosition.label(): String = when (this) {
     GreetingPosition.RIGHT -> "Right"
 }
 
+/** Label for the size chips in the editor. */
+internal fun GreetingSize.label(): String = when (this) {
+    GreetingSize.HUGE -> "Huge"
+    GreetingSize.COMPACT -> "Compact"
+}
+
 /** One RGB color for [phase] in 0..1. Light mode is brighter, dark mode is richer. */
 internal fun greetingRgb(phase: Float, isDark: Boolean): Color = Color.hsv(
     hue = (phase * 360f) % 360f,
@@ -179,8 +186,12 @@ internal fun greetingRgb(phase: Float, isDark: Boolean): Color = Color.hsv(
 internal fun TimeGreeting(
     font: GreetingFont,
     position: GreetingPosition,
+    size: GreetingSize = GreetingSize.HUGE,
     modifier: Modifier = Modifier,
 ) {
+    val compact = size == GreetingSize.COMPACT
+    val fontSize = if (compact) COMPACT_FONT_SIZE else GREETING_FONT_SIZE
+    val maxLines = if (compact) 1 else 2
     val context = LocalContext.current
     val animationsEnabled = remember(context) {
         Settings.Global.getFloat(
@@ -248,7 +259,7 @@ internal fun TimeGreeting(
         Text(
             text = greeting,
             color = color,
-            maxLines = 2,
+            maxLines = maxLines,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.align(BiasAlignment(horizontalBias = bias, verticalBias = 0f)),
             style = TextStyle(
@@ -256,12 +267,12 @@ internal fun TimeGreeting(
                 fontWeight = typeface.weight,
                 fontStyle = typeface.style,
                 letterSpacing = typeface.spacing,
-                fontSize = GREETING_FONT_SIZE.sp,
-                lineHeight = (GREETING_FONT_SIZE + 6).sp,
+                fontSize = fontSize.sp,
+                lineHeight = (fontSize + 6).sp,
                 shadow = Shadow(
                     color = color.copy(alpha = 0.6f),
                     offset = Offset.Zero,
-                    blurRadius = 32f,
+                    blurRadius = if (compact) 16f else 32f,
                 ),
             ),
         )
