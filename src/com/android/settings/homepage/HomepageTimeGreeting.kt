@@ -66,12 +66,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.fillMaxWidth
 import java.util.Calendar
 import java.util.WeakHashMap
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 
 private const val RGB_CYCLE_MS = 6000
 private const val MOVE_HALF_CYCLE_MS = 2500
 private const val GREETING_FONT_SIZE = 44
 private const val COMPACT_FONT_SIZE = 24
 private const val RING_CYCLE_MS = 4000
+private val GREETING_PILL_SHAPE = RoundedCornerShape(50)
 private val RING_WIDTH = 3.dp
 
 private val MORNING_GREETINGS = listOf(
@@ -261,7 +265,12 @@ internal fun TimeGreeting(
             color = color,
             maxLines = maxLines,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.align(BiasAlignment(horizontalBias = bias, verticalBias = 0f)),
+            modifier = Modifier
+                .align(BiasAlignment(horizontalBias = bias, verticalBias = 0f))
+                .clip(GREETING_PILL_SHAPE)
+                .background(MaterialTheme.colorScheme.surfaceBright.copy(alpha = 0.7f))
+                .border(1.dp, color.copy(alpha = 0.8f), GREETING_PILL_SHAPE)
+                .padding(horizontal = 18.dp, vertical = 8.dp),
             style = TextStyle(
                 fontFamily = typeface.family,
                 fontWeight = typeface.weight,
