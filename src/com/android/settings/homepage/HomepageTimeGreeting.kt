@@ -28,7 +28,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -50,6 +49,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -65,6 +65,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.fillMaxWidth
 import java.util.Calendar
+import java.util.WeakHashMap
 
 private const val RGB_CYCLE_MS = 6000
 private const val MOVE_HALF_CYCLE_MS = 2500
@@ -112,6 +113,11 @@ internal fun timeGreetingsFor(hour: Int): List<String> = when (hour) {
 }
 
 private fun currentHour(): Int = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+
+private fun pickGreeting(): String = timeGreetingsFor(currentHour()).random()
+
+/** The greeting shown for each screen, so it stays the same while the list scrolls. */
+private val sessionGreetings = WeakHashMap<LifecycleOwner, String>()
 
 /** Human-readable name for the editor chips, such as "Serif bold". */
 internal fun GreetingFont.label(): String =
@@ -183,14 +189,25 @@ internal fun TimeGreeting(
             1f,
         ) > 0f
     }
-    var hour by remember { mutableIntStateOf(currentHour()) }
-    var greeting by remember { mutableStateOf(timeGreetingsFor(hour).random()) }
     val lifecycleOwner = LocalLifecycleOwner.current
+    // Lazy lists dispose and recreate items while scrolling, so the greeting is kept per screen
+    // session rather than in this composition. It changes only when the screen resumes.
+    var greeting by remember(lifecycleOwner) {
+        mutableStateOf(sessionGreetings.getOrPut(lifecycleOwner) { pickGreeting() })
+    }
     DisposableEffect(lifecycleOwner) {
+        // Adding an observer replays earlier events, so only a resume after a pause counts.
+        var wasPaused = false
         val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-                hour = currentHour()
-                greeting = timeGreetingsFor(hour).random()
+            when (event) {
+                Lifecycle.Event.ON_PAUSE -> wasPaused = true
+                Lifecycle.Event.ON_RESUME -> if (wasPaused) {
+                    wasPaused = false
+                    val next = pickGreeting()
+                    sessionGreetings[lifecycleOwner] = next
+                    greeting = next
+                }
+                else -> Unit
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
