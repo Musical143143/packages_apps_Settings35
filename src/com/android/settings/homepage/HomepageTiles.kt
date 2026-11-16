@@ -1474,7 +1474,8 @@ internal fun HomepageHeader(
                     } else {
                         MaterialTheme.typography.displayMediumEmphasized
                     },
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = config.titleColor.takeIf { config.titleColorEnabled }?.let { Color(it) }
+                        ?: MaterialTheme.colorScheme.onSurface,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                 )

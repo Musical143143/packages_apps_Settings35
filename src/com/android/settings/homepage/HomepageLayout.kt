@@ -215,6 +215,8 @@ data class HeaderConfig(
     val greetingSize: GreetingSize = GreetingSize.HUGE,
     val customAvatarEnabled: Boolean = false,
     val customAvatarPath: String? = null,
+    val titleColorEnabled: Boolean = false,
+    val titleColor: Int? = null,
 )
 
 data class HomepageLayout(
@@ -516,6 +518,8 @@ internal object HomepageLayoutJson {
     private const val KEY_GREETING_SIZE = "greetingSize"
     private const val KEY_CUSTOM_AVATAR_ENABLED = "customAvatarEnabled"
     private const val KEY_CUSTOM_AVATAR_PATH = "customAvatarPath"
+    private const val KEY_TITLE_COLOR_ENABLED = "titleColorEnabled"
+    private const val KEY_TITLE_COLOR = "titleColor"
 
     fun encode(layout: HomepageLayout): String = JSONObject().apply {
         put(KEY_VERSION, VERSION)
@@ -545,6 +549,8 @@ internal object HomepageLayoutJson {
             put(KEY_GREETING_SIZE, layout.header.greetingSize.name)
             put(KEY_CUSTOM_AVATAR_ENABLED, layout.header.customAvatarEnabled)
             layout.header.customAvatarPath?.let { put(KEY_CUSTOM_AVATAR_PATH, it) }
+            put(KEY_TITLE_COLOR_ENABLED, layout.header.titleColorEnabled)
+            layout.header.titleColor?.let { put(KEY_TITLE_COLOR, it) }
         })
         put(KEY_SEARCH_BAR, layout.searchBar.name)
         put(KEY_SEARCH_BAR_BREAK, layout.searchBarBreak)
@@ -673,6 +679,8 @@ internal object HomepageLayoutJson {
             greetingPosition = enumOr(optString(KEY_GREETING_POSITION), fallback.greetingPosition),
             greetingSize = enumOr(optString(KEY_GREETING_SIZE), fallback.greetingSize),
             customAvatarEnabled = optBoolean(KEY_CUSTOM_AVATAR_ENABLED, fallback.customAvatarEnabled),
+            titleColorEnabled = optBoolean(KEY_TITLE_COLOR_ENABLED, fallback.titleColorEnabled),
+            titleColor = optArgb(KEY_TITLE_COLOR, fallback.titleColor),
             customAvatarPath = if (isNull(KEY_CUSTOM_AVATAR_PATH)) {
                 null
             } else {

@@ -786,6 +786,7 @@ internal fun AppearancePanel(
     onLayout: (HomepageLayout) -> Unit,
     onPickIconColor: () -> Unit,
     onPickBorderColor: () -> Unit,
+    onPickTitleColor: () -> Unit,
     onPickSymbolColor: () -> Unit,
     onPickIconShape: () -> Unit,
     onPickAvatarShape: () -> Unit,
@@ -881,6 +882,24 @@ internal fun AppearancePanel(
                         checked = layout.header.showTitle,
                         onCheckedChange = {
                             onLayout(layout.copy(header = layout.header.copy(showTitle = it)))
+                        },
+                    )
+                    SwitchRow(
+                        label = "Title colour",
+                        checked = layout.header.titleColorEnabled,
+                        onCheckedChange = {
+                            onLayout(layout.copy(header = layout.header.copy(titleColorEnabled = it)))
+                        },
+                    )
+                    ColorRow(
+                        label = "Title text colour",
+                        color = layout.header.titleColor?.let { Color(it) }
+                            ?: MaterialTheme.colorScheme.onSurface,
+                        overridden = layout.header.titleColor != null,
+                        inheritedFrom = "theme text colour",
+                        onClick = onPickTitleColor,
+                        onReset = {
+                            onLayout(layout.copy(header = layout.header.copy(titleColor = null)))
                         },
                     )
                     SwitchRow(

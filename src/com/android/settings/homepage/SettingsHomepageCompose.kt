@@ -107,6 +107,8 @@ private sealed class ColorTarget {
 
     object Border : ColorTarget()
 
+    object Title : ColorTarget()
+
     object Symbol : ColorTarget()
 
     class Entry(val key: String) : ColorTarget()
@@ -381,6 +383,7 @@ fun SettingsHomepageScreen(
                                     onLayout = { layout = it },
                                     onPickIconColor = { colorTarget = ColorTarget.Page },
                                     onPickBorderColor = { colorTarget = ColorTarget.Border },
+                                    onPickTitleColor = { colorTarget = ColorTarget.Title },
                                     onPickSymbolColor = { colorTarget = ColorTarget.Symbol },
                                     onPickIconShape = { shapeTarget = ShapeTarget.Page },
                                     onPickAvatarShape = { shapeTarget = ShapeTarget.Avatar },
@@ -559,6 +562,20 @@ fun SettingsHomepageScreen(
                 onDismiss = { colorTarget = null },
             )
 
+            colorTarget is ColorTarget.Title -> ColorPickerSheet(
+                title = "Title text colour",
+                initial = layout.header.titleColor?.let { Color(it) },
+                themeColor = MaterialTheme.colorScheme.primary,
+                onPick = {
+                    layout = layout.copy(header = layout.header.copy(titleColor = it.toArgb()))
+                },
+                onReset = {
+                    layout = layout.copy(header = layout.header.copy(titleColor = null))
+                    colorTarget = null
+                },
+                onDismiss = { colorTarget = null },
+            )
+
             colorTarget is ColorTarget.Page -> ColorPickerSheet(
                 title = "All tile icons",
                 initial = layout.iconColor?.let { Color(it) },
@@ -680,6 +697,7 @@ private fun ChromeContent(
     onLayout: (HomepageLayout) -> Unit,
     onPickIconColor: () -> Unit,
     onPickBorderColor: () -> Unit,
+    onPickTitleColor: () -> Unit,
     onPickSymbolColor: () -> Unit,
     onPickIconShape: () -> Unit,
     onPickAvatarShape: () -> Unit,
@@ -706,6 +724,7 @@ private fun ChromeContent(
             onLayout = onLayout,
             onPickIconColor = onPickIconColor,
             onPickBorderColor = onPickBorderColor,
+            onPickTitleColor = onPickTitleColor,
             onPickSymbolColor = onPickSymbolColor,
             onPickIconShape = onPickIconShape,
             onPickAvatarShape = onPickAvatarShape,
