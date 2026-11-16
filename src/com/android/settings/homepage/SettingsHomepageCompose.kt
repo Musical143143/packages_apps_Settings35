@@ -690,6 +690,8 @@ private fun ChromeContent(
             greeting = userName?.takeIf { layout.header.showGreeting }?.let { "Hi, $it" },
             avatarBitmap = avatarBitmap,
             onAvatarClick = { if (!editing) onAvatarClick() },
+            borderEnabled = layout.tileStyle().borderEnabled,
+            borderColor = layout.tileStyle().borderColor,
             modifier = modifier,
         )
 

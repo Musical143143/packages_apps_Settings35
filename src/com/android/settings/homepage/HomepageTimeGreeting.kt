@@ -173,9 +173,13 @@ internal fun TimeGreeting(
     font: GreetingFont,
     position: GreetingPosition,
     size: GreetingSize = GreetingSize.HUGE,
+    borderEnabled: Boolean = true,
+    borderColor: Color? = null,
     modifier: Modifier = Modifier,
 ) {
     val compact = size == GreetingSize.COMPACT
+    // The pill border follows the Settings border style: width, colour and on/off switch.
+    val pillBorder = glassBorderBrush(borderColor)
     val fontSize = if (compact) COMPACT_FONT_SIZE else GREETING_FONT_SIZE
     // Show every line of the greeting; it wraps instead of being cut off with an ellipsis.
     val maxLines = Int.MAX_VALUE
@@ -251,7 +255,7 @@ internal fun TimeGreeting(
                 .align(BiasAlignment(horizontalBias = bias, verticalBias = 0f))
                 .clip(GREETING_PILL_SHAPE)
                 .background(MaterialTheme.colorScheme.surfaceBright.copy(alpha = 0.7f))
-                .border(1.dp, color.copy(alpha = 0.8f), GREETING_PILL_SHAPE)
+                .then(if (borderEnabled) Modifier.border(GLASS_BORDER_WIDTH, pillBorder, GREETING_PILL_SHAPE) else Modifier)
                 .padding(horizontal = 14.dp, vertical = 4.dp),
             style = TextStyle(
                 fontFamily = typeface.family,

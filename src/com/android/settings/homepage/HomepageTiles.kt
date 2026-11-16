@@ -701,7 +701,7 @@ internal fun TileBody(
     }
 }
 
-private val GLASS_BORDER_WIDTH = 1.2.dp
+internal val GLASS_BORDER_WIDTH = 1.2.dp
 
 /**
  * A glass-style edge: brighter at the top and bottom, fading in the middle, so the border
@@ -1409,6 +1409,8 @@ internal fun HomepageHeader(
     greeting: String?,
     avatarBitmap: Bitmap?,
     onAvatarClick: () -> Unit,
+    borderEnabled: Boolean = true,
+    borderColor: Color? = null,
     modifier: Modifier = Modifier,
 ) {
     val compact = config.size == HeaderSize.COMPACT
@@ -1435,6 +1437,8 @@ internal fun HomepageHeader(
                     font = config.greetingFont,
                     position = config.greetingPosition,
                     size = config.greetingSize,
+                    borderEnabled = borderEnabled,
+                    borderColor = borderColor,
                 )
                 Spacer(Modifier.height(8.dp))
             }
