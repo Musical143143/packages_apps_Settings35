@@ -336,8 +336,8 @@ private fun rememberDrawableBitmap(
 
 private const val ICON_PULSE_MS = 2400
 private const val ICON_SPIN_MS = 6000
-private val ICON_MOTION_DISTANCE = 4.dp
-private const val ICON_PULSE_MIN_SCALE = 0.92f
+private val ICON_MOTION_DISTANCE = 6.dp
+private const val ICON_PULSE_MIN_SCALE = 0.82f
 
 internal fun Color.onColor(): Color = if (luminance() > 0.5f) Color.Black else Color.White
 
@@ -350,10 +350,11 @@ internal fun iconMotionFor(key: String): IconMotion {
     return when {
         "wifi" in k || "network" in k || "connect" in k || "bluetooth" in k -> IconMotion.FADE
         "battery" in k -> IconMotion.FADE
-        "notif" in k || "sound" in k || "volume" in k -> IconMotion.WOBBLE
+        "notif" in k || "sound" in k || "volume" in k || "security" in k -> IconMotion.WOBBLE
         "system" in k || "setting" in k || "about" in k || "modes" in k -> IconMotion.SPIN
-        "location" in k -> IconMotion.BOUNCE
-        "wallpaper" in k || "style" in k -> IconMotion.SWAY
+        "google" in k || "apps" in k -> IconMotion.SPIN
+        "location" in k || "storage" in k || "passw" in k -> IconMotion.BOUNCE
+        "wallpaper" in k || "style" in k || "display" in k -> IconMotion.SWAY
         else -> IconMotion.PULSE
     }
 }
@@ -413,10 +414,10 @@ internal fun HomepageIcon(
                     scaleY = scale
                 }
                 IconMotion.SPIN -> rotationZ = spin * 360f
-                IconMotion.WOBBLE -> rotationZ = sin(pulse * 2f * PI.toFloat()) * 12f
+                IconMotion.WOBBLE -> rotationZ = sin(pulse * 2f * PI.toFloat()) * 18f
                 IconMotion.BOUNCE -> translationY = -sin(pulse * PI.toFloat()) * motionOffsetPx
-                IconMotion.SWAY -> translationX = sin(pulse * 2f * PI.toFloat()) * motionOffsetPx * 0.6f
-                IconMotion.FADE -> alpha = 0.55f + 0.45f * pulse
+                IconMotion.SWAY -> translationX = sin(pulse * 2f * PI.toFloat()) * motionOffsetPx
+                IconMotion.FADE -> alpha = 0.35f + 0.65f * pulse
             }
         }
     }
