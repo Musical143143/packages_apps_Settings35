@@ -1339,6 +1339,8 @@ internal fun PinnedSearchBar(
     glass: HomepageGlassBackdrop? = null,
     rotating: Boolean = false,
     onLongClick: (() -> Unit)? = null,
+    borderEnabled: Boolean = true,
+    borderColor: Color? = null,
 ) {
     val shape = RoundedCornerShape(SEARCH_BAR_RADIUS)
     Surface(
@@ -1360,10 +1362,11 @@ internal fun PinnedSearchBar(
             .combinedClickable(onClick = onClick, onLongClick = onLongClick),
         shape = shape,
         color = if (glass != null) Color.Transparent else MaterialTheme.colorScheme.surfaceBright,
-        border = BorderStroke(
-            1.dp,
-            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.7f),
-        ),
+        border = if (borderEnabled) {
+            BorderStroke(GLASS_BORDER_WIDTH, glassBorderBrush(borderColor))
+        } else {
+            null
+        },
         shadowElevation = if (elevated) 12.dp else 0.dp,
         tonalElevation = if (elevated && glass == null) 6.dp else 0.dp,
     ) {
@@ -1381,6 +1384,8 @@ internal fun InlineSearchBarTile(
     clickable: Boolean = true,
     backdrop: ImageBitmap? = null,
     onLongClick: (() -> Unit)? = null,
+    borderEnabled: Boolean = true,
+    borderColor: Color? = null,
 ) {
     Surface(
         modifier = modifier
@@ -1397,10 +1402,11 @@ internal fun InlineSearchBarTile(
         shape = RoundedCornerShape(SEARCH_BAR_RADIUS),
         color = cardSurfaceColor(backdrop),
         contentColor = MaterialTheme.colorScheme.onSurface,
-        border = BorderStroke(
-            1.dp,
-            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.7f),
-        ),
+        border = if (borderEnabled) {
+            BorderStroke(GLASS_BORDER_WIDTH, glassBorderBrush(borderColor))
+        } else {
+            null
+        },
     ) {
         Box {
             if (backdrop != null) CardBackdrop(backdrop)

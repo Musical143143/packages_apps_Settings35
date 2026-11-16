@@ -417,6 +417,8 @@ fun SettingsHomepageScreen(
                                             clickable = !editing,
                                             backdrop = backdrop,
                                             onLongClick = { if (!editing) enterEditMode() },
+                                            borderEnabled = style.borderEnabled,
+                                            borderColor = style.borderColor,
                                         )
                                     } else {
                                         HomepageTile(
@@ -450,6 +452,8 @@ fun SettingsHomepageScreen(
                 BottomChrome(
                     editing = editing,
                     searchBar = layout.searchBar,
+                    borderEnabled = layout.tileStyle().borderEnabled,
+                    borderColor = layout.tileStyle().borderColor,
                     dirty = editing && snapshot != layout,
                     searchHint = searchHint,
                     onSearchClick = onSearchClick,
@@ -717,6 +721,8 @@ private fun ChromeContent(
             onLongClick = { if (!editing) onEnterEditMode() },
             modifier = modifier.fillMaxWidth(),
             elevated = false,
+            borderEnabled = layout.tileStyle().borderEnabled,
+            borderColor = layout.tileStyle().borderColor,
             rotating = true,
         )
 
@@ -750,6 +756,8 @@ private fun BottomChrome(
     onReset: () -> Unit,
     onSave: () -> Unit,
     glass: HomepageGlassBackdrop? = null,
+    borderEnabled: Boolean = true,
+    borderColor: Color? = null,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -789,6 +797,8 @@ private fun BottomChrome(
                         glass = glass,
                         modifier = Modifier.weight(1f),
                         rotating = true,
+                        borderEnabled = borderEnabled,
+                        borderColor = borderColor,
                     )
                 }
 
