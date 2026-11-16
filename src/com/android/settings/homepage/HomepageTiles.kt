@@ -451,6 +451,11 @@ internal fun HomepageTile(
                 .then(if (height != null) Modifier.height(height) else Modifier)
                 .clip(style.cornerShape)
                 .background(cardSurfaceColor(backdrop))
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.8f),
+                    shape = style.cornerShape,
+                )
                 .then(if (clickable) Modifier.tapFeedback(style.tapAnimation, onClick) else Modifier),
         ) {
             if (backdrop != null) CardBackdrop(backdrop)
