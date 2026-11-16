@@ -416,6 +416,7 @@ fun SettingsHomepageScreen(
                                             onClick = onSearchClick,
                                             clickable = !editing,
                                             backdrop = backdrop,
+                                            onLongClick = { if (!editing) enterEditMode() },
                                         )
                                     } else {
                                         HomepageTile(

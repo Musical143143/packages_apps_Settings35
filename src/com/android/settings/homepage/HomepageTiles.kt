@@ -1371,6 +1371,7 @@ internal fun PinnedSearchBar(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun InlineSearchBarTile(
     size: TileSize,
@@ -1379,13 +1380,20 @@ internal fun InlineSearchBarTile(
     modifier: Modifier = Modifier,
     clickable: Boolean = true,
     backdrop: ImageBitmap? = null,
+    onLongClick: (() -> Unit)? = null,
 ) {
     Surface(
         modifier = modifier
             .fillMaxWidth()
             .height(size.fixedHeight() ?: SEARCH_BAR_HEIGHT)
             .clip(RoundedCornerShape(SEARCH_BAR_RADIUS))
-            .then(if (clickable) Modifier.clickable(onClick = onClick) else Modifier),
+            .then(
+                if (clickable) {
+                    Modifier.combinedClickable(onClick = onClick, onLongClick = onLongClick)
+                } else {
+                    Modifier
+                },
+            ),
         shape = RoundedCornerShape(SEARCH_BAR_RADIUS),
         color = cardSurfaceColor(backdrop),
         contentColor = MaterialTheme.colorScheme.onSurface,
