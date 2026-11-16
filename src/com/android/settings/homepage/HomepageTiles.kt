@@ -1416,7 +1416,6 @@ internal fun InlineSearchBarTile(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 private fun HeaderTextPosition.horizontalAlignment(): Alignment.Horizontal = when (this) {
     HeaderTextPosition.LEFT -> Alignment.Start
     HeaderTextPosition.CENTER -> Alignment.CenterHorizontally
@@ -1429,6 +1428,7 @@ private fun HeaderTextPosition.textAlign(): TextAlign = when (this) {
     HeaderTextPosition.RIGHT -> TextAlign.End
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 internal fun HomepageHeader(
     config: HeaderConfig,
