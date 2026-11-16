@@ -902,6 +902,15 @@ internal fun AppearancePanel(
                             onLayout(layout.copy(header = layout.header.copy(titleColor = null)))
                         },
                     )
+                    SectionLabel("Title position")
+                    ChipOptions(
+                        options = HeaderTextPosition.values().toList(),
+                        selected = layout.header.titlePosition,
+                        labelOf = { it.label() },
+                        onSelect = {
+                            onLayout(layout.copy(header = layout.header.copy(titlePosition = it)))
+                        },
+                    )
                     SwitchRow(
                         label = "Show avatar",
                         checked = layout.header.showAvatar,

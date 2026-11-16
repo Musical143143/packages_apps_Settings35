@@ -202,6 +202,15 @@ enum class GreetingSize { HUGE, COMPACT }
 /** Where the time-based greeting sits: a fixed side, or sweeping left to right. */
 enum class GreetingPosition { SWEEP, LEFT, CENTER, RIGHT }
 
+/** Where the header title and greeting line sit: left, centre or right. */
+enum class HeaderTextPosition { LEFT, CENTER, RIGHT }
+
+internal fun HeaderTextPosition.label(): String = when (this) {
+    HeaderTextPosition.LEFT -> "Left"
+    HeaderTextPosition.CENTER -> "Centre"
+    HeaderTextPosition.RIGHT -> "Right"
+}
+
 data class HeaderConfig(
     val showTitle: Boolean = true,
     val customTitle: String? = null,
@@ -217,6 +226,7 @@ data class HeaderConfig(
     val customAvatarPath: String? = null,
     val titleColorEnabled: Boolean = false,
     val titleColor: Int? = null,
+    val titlePosition: HeaderTextPosition = HeaderTextPosition.LEFT,
 )
 
 data class HomepageLayout(
@@ -520,6 +530,7 @@ internal object HomepageLayoutJson {
     private const val KEY_CUSTOM_AVATAR_PATH = "customAvatarPath"
     private const val KEY_TITLE_COLOR_ENABLED = "titleColorEnabled"
     private const val KEY_TITLE_COLOR = "titleColor"
+    private const val KEY_TITLE_POSITION = "titlePosition"
 
     fun encode(layout: HomepageLayout): String = JSONObject().apply {
         put(KEY_VERSION, VERSION)
@@ -551,6 +562,7 @@ internal object HomepageLayoutJson {
             layout.header.customAvatarPath?.let { put(KEY_CUSTOM_AVATAR_PATH, it) }
             put(KEY_TITLE_COLOR_ENABLED, layout.header.titleColorEnabled)
             layout.header.titleColor?.let { put(KEY_TITLE_COLOR, it) }
+            put(KEY_TITLE_POSITION, layout.header.titlePosition.name)
         })
         put(KEY_SEARCH_BAR, layout.searchBar.name)
         put(KEY_SEARCH_BAR_BREAK, layout.searchBarBreak)
@@ -681,6 +693,7 @@ internal object HomepageLayoutJson {
             customAvatarEnabled = optBoolean(KEY_CUSTOM_AVATAR_ENABLED, fallback.customAvatarEnabled),
             titleColorEnabled = optBoolean(KEY_TITLE_COLOR_ENABLED, fallback.titleColorEnabled),
             titleColor = optArgb(KEY_TITLE_COLOR, fallback.titleColor),
+            titlePosition = enumOr(optString(KEY_TITLE_POSITION), fallback.titlePosition),
             customAvatarPath = if (isNull(KEY_CUSTOM_AVATAR_PATH)) {
                 null
             } else {

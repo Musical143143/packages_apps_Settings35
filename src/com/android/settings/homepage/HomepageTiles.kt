@@ -102,6 +102,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.asImageBitmap
@@ -1416,6 +1417,18 @@ internal fun InlineSearchBarTile(
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+private fun HeaderTextPosition.horizontalAlignment(): Alignment.Horizontal = when (this) {
+    HeaderTextPosition.LEFT -> Alignment.Start
+    HeaderTextPosition.CENTER -> Alignment.CenterHorizontally
+    HeaderTextPosition.RIGHT -> Alignment.End
+}
+
+private fun HeaderTextPosition.textAlign(): TextAlign = when (this) {
+    HeaderTextPosition.LEFT -> TextAlign.Start
+    HeaderTextPosition.CENTER -> TextAlign.Center
+    HeaderTextPosition.RIGHT -> TextAlign.End
+}
+
 @Composable
 internal fun HomepageHeader(
     config: HeaderConfig,
@@ -1445,7 +1458,10 @@ internal fun HomepageHeader(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Column(modifier = Modifier.weight(1f)) {
+        Column(
+            modifier = Modifier.weight(1f),
+            horizontalAlignment = config.titlePosition.horizontalAlignment(),
+        ) {
             if (config.showTimeGreeting) {
                 TimeGreeting(
                     font = config.greetingFont,
@@ -1461,6 +1477,7 @@ internal fun HomepageHeader(
                     text = greeting,
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.primary,
+                    textAlign = config.titlePosition.textAlign(),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -1476,6 +1493,7 @@ internal fun HomepageHeader(
                     },
                     color = config.titleColor.takeIf { config.titleColorEnabled }?.let { Color(it) }
                         ?: MaterialTheme.colorScheme.onSurface,
+                    textAlign = config.titlePosition.textAlign(),
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                 )
