@@ -1264,7 +1264,10 @@ internal fun HomepageHeader(
     ) {
         Column(modifier = Modifier.weight(1f)) {
             if (config.showTimeGreeting) {
-                TimeGreeting(font = config.greetingFont)
+                TimeGreeting(
+                    font = config.greetingFont,
+                    position = config.greetingPosition,
+                )
                 Spacer(Modifier.height(8.dp))
             }
             if (greeting != null) {

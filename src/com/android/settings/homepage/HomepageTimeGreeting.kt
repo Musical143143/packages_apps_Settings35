@@ -134,6 +134,14 @@ private fun GreetingFont.typeface(): Typeface = when (this) {
     GreetingFont.CURSIVE_BOLD -> Typeface(FontFamily.Cursive, FontWeight.Bold, FontStyle.Normal, 0.sp)
 }
 
+/** Label for the position chips in the editor. */
+internal fun GreetingPosition.label(): String = when (this) {
+    GreetingPosition.SWEEP -> "Sweep"
+    GreetingPosition.LEFT -> "Left"
+    GreetingPosition.CENTER -> "Center"
+    GreetingPosition.RIGHT -> "Right"
+}
+
 /** One RGB color for [phase] in 0..1. Light mode is brighter, dark mode is richer. */
 private fun greetingRgb(phase: Float, isDark: Boolean): Color = Color.hsv(
     hue = (phase * 360f) % 360f,
@@ -142,12 +150,16 @@ private fun greetingRgb(phase: Float, isDark: Boolean): Color = Color.hsv(
 )
 
 /**
- * A large greeting for the current time of day. The text cycles through RGB, glows with its
- * own color, and slides left, center and right. A random greeting is picked for the time of
+ * A large greeting for the current time of day. The text cycles through RGB and glows with its
+ * own color. It sits left, center or right, or slides between them when [position] is SWEEP. A random greeting is picked for the time of
  * day and changes each time the screen resumes. Motion stops when animations are off.
  */
 @Composable
-internal fun TimeGreeting(font: GreetingFont, modifier: Modifier = Modifier) {
+internal fun TimeGreeting(
+    font: GreetingFont,
+    position: GreetingPosition,
+    modifier: Modifier = Modifier,
+) {
     val context = LocalContext.current
     val animationsEnabled = remember(context) {
         Settings.Global.getFloat(
@@ -191,7 +203,12 @@ internal fun TimeGreeting(font: GreetingFont, modifier: Modifier = Modifier) {
     )
     val isDark = MaterialTheme.colorScheme.surfaceBright.luminance() < 0.5f
     val phase = if (animationsEnabled) animatedPhase else 0f
-    val bias = if (animationsEnabled) animatedBias else 0f
+    val bias = when (position) {
+        GreetingPosition.SWEEP -> if (animationsEnabled) animatedBias else 0f
+        GreetingPosition.LEFT -> -1f
+        GreetingPosition.CENTER -> 0f
+        GreetingPosition.RIGHT -> 1f
+    }
     val color = greetingRgb(phase, isDark)
     val typeface = font.typeface()
 

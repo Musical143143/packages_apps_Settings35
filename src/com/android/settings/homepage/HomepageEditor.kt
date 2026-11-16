@@ -916,6 +916,15 @@ internal fun AppearancePanel(
                         },
                     )
                     if (layout.header.showTimeGreeting) {
+                        SectionLabel("Greeting position")
+                        ChipOptions(
+                            options = GreetingPosition.values().toList(),
+                            selected = layout.header.greetingPosition,
+                            labelOf = { it.label() },
+                            onSelect = {
+                                onLayout(layout.copy(header = layout.header.copy(greetingPosition = it)))
+                            },
+                        )
                         SectionLabel("Greeting font")
                         ChipOptions(
                             options = GreetingFont.values().toList(),
