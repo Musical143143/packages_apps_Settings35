@@ -115,6 +115,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.StartOffset
+import kotlin.random.Random
 
 internal val GRID_TILE_SPACING = 12.dp
 internal val SEARCH_BAR_HEIGHT = 56.dp
@@ -330,6 +333,9 @@ private fun rememberDrawableBitmap(
     }
 }
 
+private const val ICON_PULSE_MS = 2400
+private const val ICON_PULSE_MIN_SCALE = 0.92f
+
 internal fun Color.onColor(): Color = if (luminance() > 0.5f) Color.Black else Color.White
 
 @Composable
@@ -345,6 +351,33 @@ internal fun HomepageIcon(
 ) {
     val scheme = MaterialTheme.colorScheme
     val accent = color ?: scheme.primary
+    val context = LocalContext.current
+    val animate = remember(context) {
+        Settings.Global.getFloat(
+            context.contentResolver,
+            Settings.Global.ANIMATOR_DURATION_SCALE,
+            1f,
+        ) > 0f
+    }
+    // Each icon starts at a random point in the cycle, so the symbols do not pulse in unison.
+    val pulseOffset = remember { Random.nextInt(0, ICON_PULSE_MS) }
+    val pulseTransition = rememberInfiniteTransition(label = "iconPulse")
+    val pulse by pulseTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = ICON_PULSE_MS, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse,
+            initialStartOffset = StartOffset(pulseOffset),
+        ),
+        label = "iconPulseValue",
+    )
+    val pulseModifier = Modifier.graphicsLayer {
+        // Read the animated value here, in the draw phase, so frames do not recompose.
+        val scale = if (animate) ICON_PULSE_MIN_SCALE + (1f - ICON_PULSE_MIN_SCALE) * pulse else 1f
+        scaleX = scale
+        scaleY = scale
+    }
     val background = when {
         !tinted && style == IconStyle.FILLED -> color ?: scheme.surfaceContainerHighest
         style == IconStyle.ACCENT -> accent.copy(alpha = ICON_BACKGROUND_ALPHA)
@@ -374,21 +407,21 @@ internal fun HomepageIcon(
                 bitmap = bitmap,
                 contentDescription = null,
                 tint = tint,
-                modifier = Modifier.size(glyphSize),
+                modifier = Modifier.size(glyphSize).then(pulseModifier),
             )
 
             iconRes != null -> Icon(
                 painter = painterResource(id = iconRes),
                 contentDescription = null,
                 tint = tint,
-                modifier = Modifier.size(glyphSize + 8.dp),
+                modifier = Modifier.size(glyphSize + 8.dp).then(pulseModifier),
             )
 
             icon != null -> Icon(
                 imageVector = icon,
                 contentDescription = null,
                 tint = tint,
-                modifier = Modifier.size(glyphSize),
+                modifier = Modifier.size(glyphSize).then(pulseModifier),
             )
         }
     }
