@@ -500,8 +500,8 @@ internal fun HomepageTile(
                 .clip(style.cornerShape)
                 .background(cardSurfaceColor(backdrop))
                 .border(
-                    width = 3.dp,
-                    color = MaterialTheme.colorScheme.outline,
+                    width = GLASS_BORDER_WIDTH,
+                    brush = glassBorderBrush(),
                     shape = style.cornerShape,
                 )
                 .then(if (clickable) Modifier.tapFeedback(style.tapAnimation, onClick) else Modifier),
@@ -662,6 +662,26 @@ internal fun TileBody(
     }
 }
 
+private val GLASS_BORDER_WIDTH = 4.dp
+
+/**
+ * A glass-style edge: brighter at the top and bottom, fading in the middle, so the border
+ * reads as a frosted pane in both light and dark mode.
+ */
+@Composable
+internal fun glassBorderBrush(): Brush {
+    val base = MaterialTheme.colorScheme.onSurface
+    return remember(base) {
+        Brush.linearGradient(
+            colors = listOf(
+                base.copy(alpha = 0.55f),
+                base.copy(alpha = 0.12f),
+                base.copy(alpha = 0.40f),
+            ),
+        )
+    }
+}
+
 @Composable
 internal fun HomepageCard(
     entries: List<HomepageItem>,
@@ -699,8 +719,8 @@ internal fun HomepageCard(
         color = cardSurfaceColor(backdrop),
         contentColor = MaterialTheme.colorScheme.onSurface,
         border = BorderStroke(
-            3.dp,
-            MaterialTheme.colorScheme.outline,
+            GLASS_BORDER_WIDTH,
+            glassBorderBrush(),
         ),
     ) {
         Box {
