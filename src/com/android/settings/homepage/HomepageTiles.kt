@@ -610,6 +610,10 @@ internal fun HomepageCard(
         shape = style.cornerShape,
         color = cardSurfaceColor(backdrop),
         contentColor = MaterialTheme.colorScheme.onSurface,
+        border = BorderStroke(
+            1.dp,
+            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.8f),
+        ),
     ) {
         Box {
             if (backdrop != null) CardBackdrop(backdrop)
