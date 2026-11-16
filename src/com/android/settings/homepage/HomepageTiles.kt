@@ -79,12 +79,14 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
@@ -404,17 +406,18 @@ internal fun HomepageTile(
     backdrop: ImageBitmap? = null,
 ) {
     val height = size.fixedHeight()
-    Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .then(if (height != null) Modifier.height(height) else Modifier)
-            .clip(style.cornerShape)
-            .then(if (clickable) Modifier.tapFeedback(style.tapAnimation, onClick) else Modifier),
-        shape = style.cornerShape,
-        color = cardSurfaceColor(backdrop),
-        contentColor = MaterialTheme.colorScheme.onSurface,
-    ) {
-        Box {
+    // The background is drawn before the tap feedback, so the glow, ripple and squish sit on
+    // top of the card color. A Surface draws its color above the modifier's glow and ripple,
+    // which hid the feedback.
+    CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onSurface) {
+        Box(
+            modifier = modifier
+                .fillMaxWidth()
+                .then(if (height != null) Modifier.height(height) else Modifier)
+                .clip(style.cornerShape)
+                .background(cardSurfaceColor(backdrop))
+                .then(if (clickable) Modifier.tapFeedback(style.tapAnimation, onClick) else Modifier),
+        ) {
             if (backdrop != null) CardBackdrop(backdrop)
             TileBody(
                 item = item,
