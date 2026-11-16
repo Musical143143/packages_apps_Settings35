@@ -1297,13 +1297,10 @@ internal fun HomepageHeader(
         if (config.showAvatar) {
             Spacer(Modifier.width(12.dp))
             val avatarSize = if (compact) 44.dp else 52.dp
-            Box(
-                modifier = Modifier
-                    .size(avatarSize)
-                    .clip(config.avatarShape.containerShape())
-                    .background(MaterialTheme.colorScheme.surfaceBright)
-                    .clickable(onClick = onAvatarClick),
-                contentAlignment = Alignment.Center,
+            RgbRingAvatar(
+                shape = config.avatarShape.containerShape(),
+                avatarSize = avatarSize,
+                onClick = onAvatarClick,
             ) {
                 if (avatarBitmap != null) {
                     Image(

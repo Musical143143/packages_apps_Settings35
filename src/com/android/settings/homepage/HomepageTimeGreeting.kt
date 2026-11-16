@@ -49,13 +49,26 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Alignment
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.fillMaxWidth
 import java.util.Calendar
 
 private const val RGB_CYCLE_MS = 6000
 private const val MOVE_HALF_CYCLE_MS = 2500
 private const val GREETING_FONT_SIZE = 44
+private const val RING_CYCLE_MS = 4000
+private val RING_WIDTH = 3.dp
 
 private val MORNING_GREETINGS = listOf(
     "Good morning",
@@ -143,7 +156,7 @@ internal fun GreetingPosition.label(): String = when (this) {
 }
 
 /** One RGB color for [phase] in 0..1. Light mode is brighter, dark mode is richer. */
-private fun greetingRgb(phase: Float, isDark: Boolean): Color = Color.hsv(
+internal fun greetingRgb(phase: Float, isDark: Boolean): Color = Color.hsv(
     hue = (phase * 360f) % 360f,
     saturation = if (isDark) 0.6f else 0.85f,
     value = if (isDark) 1f else 0.75f,
@@ -232,6 +245,68 @@ internal fun TimeGreeting(
                     blurRadius = 32f,
                 ),
             ),
+        )
+    }
+}
+
+/**
+ * An avatar with a smooth RGB ring around it. The ring is drawn in its own layer each frame,
+ * so only the colour changes and the rest of the header is not recomposed. The ring follows
+ * the avatar shape. It stays still when system animations are off.
+ */
+@Composable
+internal fun RgbRingAvatar(
+    shape: Shape,
+    avatarSize: Dp,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    content: @Composable BoxScope.() -> Unit,
+) {
+    val context = LocalContext.current
+    val animationsEnabled = remember(context) {
+        Settings.Global.getFloat(
+            context.contentResolver,
+            Settings.Global.ANIMATOR_DURATION_SCALE,
+            1f,
+        ) > 0f
+    }
+    val transition = rememberInfiniteTransition(label = "avatarRingFx")
+    val animatedPhase by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = RING_CYCLE_MS, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart,
+        ),
+        label = "avatarRingRgb",
+    )
+    val isDark = MaterialTheme.colorScheme.surfaceBright.luminance() < 0.5f
+
+    Box(
+        modifier = modifier
+            .size(avatarSize + RING_WIDTH * 2)
+            .drawBehind {
+                // Read the animated phase here, in the draw phase, so frames do not recompose.
+                val phase = if (animationsEnabled) animatedPhase else 0f
+                val colors = listOf(
+                    greetingRgb(phase, isDark),
+                    greetingRgb((phase + 1f / 3f) % 1f, isDark),
+                    greetingRgb((phase + 2f / 3f) % 1f, isDark),
+                    greetingRgb(phase, isDark),
+                )
+                val outline = shape.createOutline(this.size, layoutDirection, this)
+                drawOutline(outline = outline, brush = Brush.sweepGradient(colors, center))
+            },
+        contentAlignment = Alignment.Center,
+    ) {
+        Box(
+            modifier = Modifier
+                .size(avatarSize)
+                .clip(shape)
+                .background(MaterialTheme.colorScheme.surfaceBright)
+                .clickable(onClick = onClick),
+            contentAlignment = Alignment.Center,
+            content = content,
         )
     }
 }
