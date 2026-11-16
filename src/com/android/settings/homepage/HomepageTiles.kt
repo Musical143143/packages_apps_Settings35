@@ -500,7 +500,7 @@ internal fun HomepageTile(
                 .clip(style.cornerShape)
                 .background(cardSurfaceColor(backdrop))
                 .border(
-                    width = 2.dp,
+                    width = 3.dp,
                     color = MaterialTheme.colorScheme.outline,
                     shape = style.cornerShape,
                 )
@@ -699,7 +699,7 @@ internal fun HomepageCard(
         color = cardSurfaceColor(backdrop),
         contentColor = MaterialTheme.colorScheme.onSurface,
         border = BorderStroke(
-            2.dp,
+            3.dp,
             MaterialTheme.colorScheme.outline,
         ),
     ) {
