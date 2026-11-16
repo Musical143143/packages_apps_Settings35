@@ -500,8 +500,8 @@ internal fun HomepageTile(
                 .clip(style.cornerShape)
                 .background(cardSurfaceColor(backdrop))
                 .border(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.8f),
+                    width = 2.dp,
+                    color = MaterialTheme.colorScheme.outline,
                     shape = style.cornerShape,
                 )
                 .then(if (clickable) Modifier.tapFeedback(style.tapAnimation, onClick) else Modifier),
@@ -699,8 +699,8 @@ internal fun HomepageCard(
         color = cardSurfaceColor(backdrop),
         contentColor = MaterialTheme.colorScheme.onSurface,
         border = BorderStroke(
-            1.dp,
-            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.8f),
+            2.dp,
+            MaterialTheme.colorScheme.outline,
         ),
     ) {
         Box {
