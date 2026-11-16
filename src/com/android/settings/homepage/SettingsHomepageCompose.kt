@@ -16,6 +16,8 @@
 package com.android.settings.homepage
 
 import android.graphics.Bitmap
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -49,6 +51,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -64,6 +67,9 @@ import androidx.compose.ui.unit.dp
 import com.android.axion.compose.theme.AxionTheme
 import com.android.settings.R
 import com.android.settings.widget.setSettingsContent
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.function.Consumer
 
 class HomepageEditController {
@@ -230,6 +236,27 @@ fun SettingsHomepageScreen(
     var optionsKey by remember { mutableStateOf<String?>(null) }
     var colorTarget by remember { mutableStateOf<ColorTarget?>(null) }
     var shapeTarget by remember { mutableStateOf<ShapeTarget?>(null) }
+    val coroutineScope = rememberCoroutineScope()
+    val avatarPhotoPicker = rememberLauncherForActivityResult(
+        ActivityResultContracts.GetContent(),
+    ) { uri ->
+        if (uri != null) {
+            coroutineScope.launch {
+                val previous = layout.header.customAvatarPath
+                val path = withContext(Dispatchers.IO) {
+                    importAvatarPhoto(context, uri, previous)
+                }
+                if (path != null) {
+                    layout = layout.copy(
+                        header = layout.header.copy(
+                            customAvatarEnabled = true,
+                            customAvatarPath = path,
+                        ),
+                    )
+                }
+            }
+        }
+    }
     var confirmingReset by remember { mutableStateOf(false) }
 
     val editing = snapshot != null
@@ -357,6 +384,7 @@ fun SettingsHomepageScreen(
                                     onPickSymbolColor = { colorTarget = ColorTarget.Symbol },
                                     onPickIconShape = { shapeTarget = ShapeTarget.Page },
                                     onPickAvatarShape = { shapeTarget = ShapeTarget.Avatar },
+                                    onPickAvatarPhoto = { avatarPhotoPicker.launch("image/*") },
                                     onAddBreak = { layout = layout.appendSeparator() },
                                     onResetAll = { confirmingReset = true },
                                     modifier = cellModifier,
@@ -650,6 +678,7 @@ private fun ChromeContent(
     onPickSymbolColor: () -> Unit,
     onPickIconShape: () -> Unit,
     onPickAvatarShape: () -> Unit,
+    onPickAvatarPhoto: () -> Unit,
     onAddBreak: () -> Unit,
     onResetAll: () -> Unit,
     modifier: Modifier = Modifier,
@@ -673,6 +702,7 @@ private fun ChromeContent(
             onPickSymbolColor = onPickSymbolColor,
             onPickIconShape = onPickIconShape,
             onPickAvatarShape = onPickAvatarShape,
+            onPickAvatarPhoto = onPickAvatarPhoto,
             onAddBreak = onAddBreak,
             onResetAll = onResetAll,
             modifier = modifier,

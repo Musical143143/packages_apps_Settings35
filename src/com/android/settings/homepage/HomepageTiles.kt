@@ -1412,6 +1412,7 @@ internal fun HomepageHeader(
     modifier: Modifier = Modifier,
 ) {
     val compact = config.size == HeaderSize.COMPACT
+    val photo = rememberAvatarPhoto(config)
     if (!config.showTitle && !config.showAvatar && greeting == null && !config.showTimeGreeting) {
         Spacer(modifier.height(if (compact) 16.dp else 32.dp))
         return
@@ -1469,9 +1470,10 @@ internal fun HomepageHeader(
                 avatarSize = avatarSize,
                 onClick = onAvatarClick,
             ) {
-                if (avatarBitmap != null) {
+                val shownAvatar = photo ?: avatarBitmap
+                if (shownAvatar != null) {
                     Image(
-                        bitmap = avatarBitmap.asImageBitmap(),
+                        bitmap = shownAvatar.asImageBitmap(),
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize(),

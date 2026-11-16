@@ -213,6 +213,8 @@ data class HeaderConfig(
     val greetingFont: GreetingFont = GreetingFont.CLASSIC,
     val greetingPosition: GreetingPosition = GreetingPosition.SWEEP,
     val greetingSize: GreetingSize = GreetingSize.HUGE,
+    val customAvatarEnabled: Boolean = false,
+    val customAvatarPath: String? = null,
 )
 
 data class HomepageLayout(
@@ -512,6 +514,8 @@ internal object HomepageLayoutJson {
     private const val KEY_GREETING_FONT = "greetingFont"
     private const val KEY_GREETING_POSITION = "greetingPosition"
     private const val KEY_GREETING_SIZE = "greetingSize"
+    private const val KEY_CUSTOM_AVATAR_ENABLED = "customAvatarEnabled"
+    private const val KEY_CUSTOM_AVATAR_PATH = "customAvatarPath"
 
     fun encode(layout: HomepageLayout): String = JSONObject().apply {
         put(KEY_VERSION, VERSION)
@@ -539,6 +543,8 @@ internal object HomepageLayoutJson {
             put(KEY_GREETING_FONT, layout.header.greetingFont.name)
             put(KEY_GREETING_POSITION, layout.header.greetingPosition.name)
             put(KEY_GREETING_SIZE, layout.header.greetingSize.name)
+            put(KEY_CUSTOM_AVATAR_ENABLED, layout.header.customAvatarEnabled)
+            layout.header.customAvatarPath?.let { put(KEY_CUSTOM_AVATAR_PATH, it) }
         })
         put(KEY_SEARCH_BAR, layout.searchBar.name)
         put(KEY_SEARCH_BAR_BREAK, layout.searchBarBreak)
@@ -666,6 +672,12 @@ internal object HomepageLayoutJson {
             greetingFont = enumOr(optString(KEY_GREETING_FONT), fallback.greetingFont),
             greetingPosition = enumOr(optString(KEY_GREETING_POSITION), fallback.greetingPosition),
             greetingSize = enumOr(optString(KEY_GREETING_SIZE), fallback.greetingSize),
+            customAvatarEnabled = optBoolean(KEY_CUSTOM_AVATAR_ENABLED, fallback.customAvatarEnabled),
+            customAvatarPath = if (isNull(KEY_CUSTOM_AVATAR_PATH)) {
+                null
+            } else {
+                optString(KEY_CUSTOM_AVATAR_PATH).takeIf { it.isNotBlank() }
+            },
         )
     }
 }

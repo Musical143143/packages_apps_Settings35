@@ -84,6 +84,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.Image
+import androidx.compose.material.icons.outlined.Image
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
@@ -783,10 +788,12 @@ internal fun AppearancePanel(
     onPickSymbolColor: () -> Unit,
     onPickIconShape: () -> Unit,
     onPickAvatarShape: () -> Unit,
+    onPickAvatarPhoto: () -> Unit,
     onAddBreak: () -> Unit,
     onResetAll: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
     var expanded by rememberSaveable { mutableStateOf(false) }
     Surface(
         modifier = modifier.fillMaxWidth(),
@@ -902,6 +909,36 @@ internal fun AppearancePanel(
                             iconStyle = IconStyle.FILLED,
                             iconColor = MaterialTheme.colorScheme.surfaceBright,
                         )
+                        SwitchRow(
+                            label = "Use my photo",
+                            checked = layout.header.customAvatarEnabled,
+                            onCheckedChange = {
+                                if (it && layout.header.customAvatarPath == null) {
+                                    onPickAvatarPhoto()
+                                } else {
+                                    onLayout(layout.copy(header = layout.header.copy(customAvatarEnabled = it)))
+                                }
+                            },
+                        )
+                        PickerRow(
+                            label = "Photo",
+                            overridden = layout.header.customAvatarPath != null,
+                            inheritedFrom = "your account picture",
+                            onClick = onPickAvatarPhoto,
+                            onReset = {
+                                deleteAvatarPhoto(context, layout.header.customAvatarPath)
+                                onLayout(
+                                    layout.copy(
+                                        header = layout.header.copy(
+                                            customAvatarEnabled = false,
+                                            customAvatarPath = null,
+                                        ),
+                                    ),
+                                )
+                            },
+                        ) {
+                            AvatarPhotoPreview(config = layout.header)
+                        }
                     }
                     SwitchRow(
                         label = "Show greeting",
@@ -1442,3 +1479,32 @@ internal fun HeaderSize.displayName(): String = when (this) {
 
 internal fun HomepageLayout.inheritedColorLabel(): String =
     if (iconColor != null) "page colour" else "theme accent"
+
+/** The small preview of the photo in the header options; falls back to an image icon. */
+@Composable
+private fun AvatarPhotoPreview(config: HeaderConfig) {
+    val photo = rememberAvatarPhoto(config)
+    Box(
+        modifier = Modifier
+            .size(40.dp)
+            .clip(config.avatarShape.containerShape())
+            .background(MaterialTheme.colorScheme.surfaceBright),
+        contentAlignment = Alignment.Center,
+    ) {
+        if (photo != null) {
+            Image(
+                bitmap = photo.asImageBitmap(),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize(),
+            )
+        } else {
+            Icon(
+                imageVector = Icons.Outlined.Image,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.size(20.dp),
+            )
+        }
+    }
+}
