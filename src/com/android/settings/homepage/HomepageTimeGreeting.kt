@@ -78,44 +78,27 @@ private const val RING_CYCLE_MS = 4000
 private val GREETING_PILL_SHAPE = RoundedCornerShape(50)
 private val RING_WIDTH = 3.dp
 
-private val MORNING_GREETINGS = listOf(
-    "Good morning",
-    "Rise and shine",
-    "Morning, sunshine",
-    "Fresh start today",
-    "Hello, early bird",
-    "Let's make it great",
-)
-private val AFTERNOON_GREETINGS = listOf(
-    "Good afternoon",
-    "Hope your day is going well",
+/** General greetings, shown at any time of day. */
+private val GENERAL_GREETINGS = listOf(
+    "Hello, traveler",
+    "Welcome back",
+    "Good to see you",
+    "Ready when you are",
+    "What can we do today?",
     "Keep going strong",
-    "Hello again",
-    "Time for a short break?",
-    "Afternoon check-in",
-)
-private val EVENING_GREETINGS = listOf(
-    "Good evening",
-    "Relax, you earned it",
-    "Winding down?",
-    "Evening, friend",
-    "Hope today was kind",
-)
-private val NIGHT_GREETINGS = listOf(
-    "Good night",
-    "Still up?",
-    "Sleep well soon",
-    "Quiet hours",
-    "Late night, huh?",
+    "Think positive",
+    "Hi there, friend",
+    "Nice to have you here",
+    "Let's make it a good one",
+    "Take it one step at a time",
+    "You've got this",
+    "Hope you're doing well",
+    "Let's find something new",
 )
 
-/** Greetings that fit the current time of day. */
-internal fun timeGreetingsFor(hour: Int): List<String> = when (hour) {
-    in 5..11 -> MORNING_GREETINGS
-    in 12..16 -> AFTERNOON_GREETINGS
-    in 17..20 -> EVENING_GREETINGS
-    else -> NIGHT_GREETINGS
-}
+/** Greetings to choose from. They are not tied to the time of day. */
+internal fun timeGreetingsFor(@Suppress("UNUSED_PARAMETER") hour: Int): List<String> =
+    GENERAL_GREETINGS
 
 private fun currentHour(): Int = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
 
