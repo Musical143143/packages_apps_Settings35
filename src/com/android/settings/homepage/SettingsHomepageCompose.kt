@@ -337,6 +337,7 @@ fun SettingsHomepageScreen(
                             when (cell) {
                                 is HomepageCell.Chrome -> ChromeContent(
                                     kind = cell.kind,
+                                    onEnterEditMode = enterEditMode,
                                     layout = layout,
                                     catalog = catalog,
                                     defaultTitle = defaultTitle,
@@ -612,6 +613,7 @@ private fun ChromeContent(
     editing: Boolean,
     onAvatarClick: () -> Unit,
     onSearchClick: () -> Unit,
+    onEnterEditMode: () -> Unit,
     onLayout: (HomepageLayout) -> Unit,
     onPickIconColor: () -> Unit,
     onPickIconShape: () -> Unit,
@@ -645,6 +647,7 @@ private fun ChromeContent(
         ChromeKind.TOP_SEARCH -> PinnedSearchBar(
             hint = searchHint,
             onClick = { if (!editing) onSearchClick() },
+            onLongClick = { if (!editing) onEnterEditMode() },
             modifier = modifier.fillMaxWidth(),
             elevated = false,
             rotating = true,
@@ -711,21 +714,18 @@ private fun BottomChrome(
                 )
 
                 searchBar == SearchBarPosition.BOTTOM -> {
+                    // The edit button is hidden. Long-press the search bar to open the editor.
                     PinnedSearchBar(
                         hint = searchHint,
                         onClick = onSearchClick,
+                        onLongClick = onEnterEditMode,
                         glass = glass,
                         modifier = Modifier.weight(1f),
                         rotating = true,
                     )
-                    Spacer(Modifier.width(10.dp))
-                    EditModeButton(onClick = onEnterEditMode, glass = glass)
                 }
 
-                else -> {
-                    Spacer(Modifier.weight(1f))
-                    EditModeButton(onClick = onEnterEditMode)
-                }
+                else -> Spacer(Modifier.weight(1f))
             }
         }
         Spacer(modifier = Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))

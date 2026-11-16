@@ -54,7 +54,9 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -1165,6 +1167,7 @@ private fun SearchBarBody(size: TileSize, hint: String, rotating: Boolean = fals
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun PinnedSearchBar(
     hint: String,
@@ -1173,6 +1176,7 @@ internal fun PinnedSearchBar(
     elevated: Boolean = true,
     glass: HomepageGlassBackdrop? = null,
     rotating: Boolean = false,
+    onLongClick: (() -> Unit)? = null,
 ) {
     val shape = RoundedCornerShape(SEARCH_BAR_RADIUS)
     Surface(
@@ -1191,7 +1195,7 @@ internal fun PinnedSearchBar(
                 }
             )
             .clip(shape)
-            .clickable(onClick = onClick),
+            .combinedClickable(onClick = onClick, onLongClick = onLongClick),
         shape = shape,
         color = if (glass != null) Color.Transparent else MaterialTheme.colorScheme.surfaceBright,
         border = BorderStroke(
