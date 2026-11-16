@@ -18,16 +18,18 @@ package com.android.settings.fuelgauge
 
 import android.animation.ValueAnimator
 import android.content.Context
-import android.content.res.ColorStateList
 import android.content.res.Configuration
+import android.graphics.BlurMaskFilter
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.ColorFilter
+import android.graphics.LinearGradient
 import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.PixelFormat
 import android.graphics.Rect
 import android.graphics.RectF
+import android.graphics.Shader
 import android.graphics.SweepGradient
 import android.graphics.drawable.Drawable
 import android.provider.Settings
@@ -38,10 +40,11 @@ import android.view.animation.LinearInterpolator
 import android.widget.ProgressBar
 import androidx.preference.PreferenceViewHolder
 import com.android.settingslib.widget.UsageProgressBarPreference
+import kotlin.random.Random
 
 /**
- * Battery usage header whose fill bar cycles through the RGB spectrum, with an RGB border
- * around the whole pill that rotates. Light mode uses brighter tones and dark mode uses richer
+ * Battery usage header. The fill inside the pill flows through a random RGB glow, and a rainbow
+ * border rotates around the whole pill. Light mode uses brighter tones and dark mode uses richer
  * tones. The animation pauses when the bar leaves the window and is skipped when system
  * animations are turned off.
  */
@@ -61,27 +64,30 @@ class RainbowBatteryProgressPreference(context: Context, attrs: AttributeSet?) :
         val uiMode = progressBar.context.resources.configuration.uiMode
         val isDark =
             (uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+        val density = progressBar.resources.displayMetrics.density
 
-        val strokePx = BORDER_WIDTH_DP * progressBar.resources.displayMetrics.density
-        val border = RgbBorderDrawable(strokePx, isDark)
-        progressBar.foreground = border
+        val overlay = RgbPillDrawable(
+            borderWidthPx = BORDER_WIDTH_DP * density,
+            glowRadiusPx = GLOW_RADIUS_DP * density,
+            isDark = isDark,
+            startHue = Random.nextFloat() * 360f,
+        )
+        progressBar.foreground = overlay
 
         if (!animationsEnabled(progressBar.context)) {
-            progressBar.progressTintList = ColorStateList.valueOf(rainbowColor(0f, isDark))
-            border.setRotationFraction(0f)
+            overlay.setRotationFraction(0f)
+            overlay.setProgressFraction(progressFraction(progressBar))
             return
         }
 
         val animator =
-            ValueAnimator.ofFloat(0f, 360f).apply {
+            ValueAnimator.ofFloat(0f, 1f).apply {
                 duration = CYCLE_MS
                 repeatCount = ValueAnimator.INFINITE
                 interpolator = LinearInterpolator()
                 addUpdateListener {
-                    val hue = it.animatedValue as Float
-                    progressBar.progressTintList =
-                        ColorStateList.valueOf(rainbowColor(hue, isDark))
-                    border.setRotationFraction(hue / 360f)
+                    overlay.setRotationFraction(it.animatedValue as Float)
+                    overlay.setProgressFraction(progressFraction(progressBar))
                 }
             }
         progressBar.tag = animator
@@ -100,14 +106,12 @@ class RainbowBatteryProgressPreference(context: Context, attrs: AttributeSet?) :
     }
 
     private companion object {
-        const val CYCLE_MS = 6000L
+        const val CYCLE_MS = 5000L
         const val BORDER_WIDTH_DP = 2.5f
+        const val GLOW_RADIUS_DP = 6f
 
-        fun rainbowColor(hue: Float, isDark: Boolean): Int {
-            val saturation = if (isDark) 0.65f else 0.8f
-            val brightness = if (isDark) 1f else 0.85f
-            return Color.HSVToColor(floatArrayOf(hue % 360f, saturation, brightness))
-        }
+        fun progressFraction(progressBar: ProgressBar): Float =
+            progressBar.progress.toFloat() / progressBar.max.coerceAtLeast(1)
 
         fun animationsEnabled(context: Context): Boolean =
             Settings.Global.getFloat(
@@ -131,62 +135,117 @@ class RainbowBatteryProgressPreference(context: Context, attrs: AttributeSet?) :
 }
 
 /**
- * A rounded rectangle outline filled with a rainbow sweep. [setRotationFraction] turns the sweep
- * around the center, so the colors flow around the pill.
+ * Drawn over the battery pill. It paints the filled part with a flowing RGB gradient and a soft
+ * glow, and draws a rotating rainbow border around the whole pill.
  */
-private class RgbBorderDrawable(
-    strokeWidthPx: Float,
-    isDark: Boolean,
+private class RgbPillDrawable(
+    private val borderWidthPx: Float,
+    private val glowRadiusPx: Float,
+    private val isDark: Boolean,
+    private val startHue: Float,
 ) : Drawable() {
-    private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+    private val borderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
-        strokeWidth = strokeWidthPx
+        strokeWidth = borderWidthPx
+    }
+    private val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.FILL
+    }
+    private val glowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.FILL
+        maskFilter = BlurMaskFilter(glowRadiusPx, BlurMaskFilter.Blur.NORMAL)
+        alpha = GLOW_ALPHA
     }
     private val rect = RectF()
+    private val fillRect = RectF()
     private val matrix = Matrix()
-    private val inset = strokeWidthPx / 2f
-    private val colors = IntArray(RAINBOW_STOPS + 1) { index ->
-        val hue = index * 360f / RAINBOW_STOPS
-        val saturation = if (isDark) 0.65f else 0.8f
-        val brightness = if (isDark) 1f else 0.85f
-        Color.HSVToColor(floatArrayOf(hue % 360f, saturation, brightness))
+    private val borderColors = IntArray(RAINBOW_STOPS + 1) { index ->
+        rgb(index * 360f / RAINBOW_STOPS)
     }
-    private var shader: SweepGradient? = null
-    private var rotationDegrees = 0f
+    private val fillColors = IntArray(RAINBOW_STOPS + 1) { index ->
+        rgb(startHue + index * 360f / RAINBOW_STOPS)
+    }
+    private var borderShader: SweepGradient? = null
+    private var fillShader: LinearGradient? = null
+    private var rotationFraction = 0f
+    private var progressFraction = 0f
 
-    /** Sets the rotation of the rainbow sweep, from 0 to 1 for one full turn. */
+    /** Turns the rainbow border and the fill colors, from 0 to 1 for one full cycle. */
     fun setRotationFraction(fraction: Float) {
-        rotationDegrees = fraction * 360f
+        rotationFraction = fraction
+        invalidateSelf()
+    }
+
+    /** Sets how much of the pill is filled, from 0 to 1. */
+    fun setProgressFraction(fraction: Float) {
+        progressFraction = fraction.coerceIn(0f, 1f)
         invalidateSelf()
     }
 
     override fun onBoundsChange(bounds: Rect) {
         super.onBoundsChange(bounds)
+        val inset = borderWidthPx / 2f
         rect.set(bounds)
         rect.inset(inset, inset)
-        shader = SweepGradient(bounds.exactCenterX(), bounds.exactCenterY(), colors, null)
+        borderShader = SweepGradient(bounds.exactCenterX(), bounds.exactCenterY(), borderColors, null)
+        fillShader = LinearGradient(
+            0f,
+            0f,
+            rect.width(),
+            0f,
+            fillColors,
+            null,
+            Shader.TileMode.REPEAT,
+        )
     }
 
     override fun draw(canvas: Canvas) {
-        val sweep = shader ?: return
-        matrix.setRotate(rotationDegrees, bounds.exactCenterX(), bounds.exactCenterY())
-        sweep.setLocalMatrix(matrix)
-        paint.shader = sweep
         val radius = rect.height() / 2f
-        canvas.drawRoundRect(rect, radius, radius, paint)
+
+        // Filled part with a flowing RGB gradient and a glow behind it.
+        val fill = fillShader
+        val fillWidth = rect.width() * progressFraction
+        if (fill != null && fillWidth > 0f) {
+            fillRect.set(rect.left, rect.top, rect.left + fillWidth.coerceAtLeast(rect.height()), rect.bottom)
+            matrix.setTranslate(
+                rect.left - rotationFraction * rect.width(),
+                rect.top,
+            )
+            fill.setLocalMatrix(matrix)
+            fillPaint.shader = fill
+            glowPaint.shader = fill
+            canvas.drawRoundRect(fillRect, radius, radius, glowPaint)
+            canvas.drawRoundRect(fillRect, radius, radius, fillPaint)
+        }
+
+        // Rotating rainbow border around the whole pill.
+        val sweep = borderShader ?: return
+        matrix.setRotate(rotationFraction * 360f, bounds.exactCenterX(), bounds.exactCenterY())
+        sweep.setLocalMatrix(matrix)
+        borderPaint.shader = sweep
+        canvas.drawRoundRect(rect, radius, radius, borderPaint)
     }
 
     override fun setAlpha(alpha: Int) {
-        paint.alpha = alpha
+        fillPaint.alpha = alpha
+        borderPaint.alpha = alpha
     }
 
     override fun setColorFilter(colorFilter: ColorFilter?) {
-        paint.colorFilter = colorFilter
+        fillPaint.colorFilter = colorFilter
+        borderPaint.colorFilter = colorFilter
     }
 
     override fun getOpacity(): Int = PixelFormat.TRANSLUCENT
 
+    private fun rgb(hue: Float): Int {
+        val saturation = if (isDark) 0.65f else 0.8f
+        val brightness = if (isDark) 1f else 0.9f
+        return Color.HSVToColor(floatArrayOf(hue % 360f, saturation, brightness))
+    }
+
     private companion object {
         const val RAINBOW_STOPS = 12
+        const val GLOW_ALPHA = 120
     }
 }
