@@ -701,7 +701,7 @@ internal fun TileBody(
     }
 }
 
-internal val GLASS_BORDER_WIDTH = 1.2.dp
+internal val GLASS_BORDER_WIDTH = 1.dp
 
 /**
  * A glass-style edge: brighter at the top and bottom, fading in the middle, so the border
