@@ -1054,6 +1054,11 @@ internal fun AppearancePanel(
                         labelOf = { it.displayName() },
                         onSelect = { onLayout(layout.copy(tapAnimation = it)) },
                     )
+                    SwitchRow(
+                        label = "Animate icons",
+                        checked = layout.animateIcons,
+                        onCheckedChange = { onLayout(layout.copy(animateIcons = it)) },
+                    )
 
                     Spacer(Modifier.height(16.dp))
                     Row(

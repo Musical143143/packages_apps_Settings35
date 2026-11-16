@@ -257,6 +257,7 @@ data class TileStyle(
     val iconPosition: IconPosition = IconPosition.START,
     val chevronStyle: ChevronStyle = ChevronStyle.PLAIN,
     val tapAnimation: TapAnimation = TapAnimation.RIPPLE,
+    val animateIcons: Boolean = true,
 )
 
 fun HomepageLayout.tileStyle(): TileStyle = TileStyle(
@@ -270,6 +271,7 @@ fun HomepageLayout.tileStyle(): TileStyle = TileStyle(
     iconPosition = iconPosition,
     chevronStyle = chevronStyle,
     tapAnimation = tapAnimation,
+    animateIcons = animateIcons,
 )
 
 internal fun TileSize.fixedHeight(): Dp? = when (this) {
@@ -370,17 +372,20 @@ internal fun HomepageIcon(
     color: Color? = null,
     shape: Shape = CircleShape,
     motion: IconMotion = IconMotion.PULSE,
+    animateIcons: Boolean = true,
 ) {
     val scheme = MaterialTheme.colorScheme
     val accent = color ?: scheme.primary
     val context = LocalContext.current
-    val animate = remember(context) {
+    val systemAnimations = remember(context) {
         Settings.Global.getFloat(
             context.contentResolver,
             Settings.Global.ANIMATOR_DURATION_SCALE,
             1f,
         ) > 0f
     }
+    // Icon motion can be switched off in the editor, and also stops when system animations are off.
+    val animate = animateIcons && systemAnimations
     // Each icon starts at a random point in its cycle, so the symbols do not move in unison.
     val motionOffset = remember { Random.nextInt(0, ICON_PULSE_MS) }
     val motionTransition = rememberInfiniteTransition(label = "iconMotion")
@@ -548,6 +553,7 @@ internal fun TileBody(
             color = iconColor,
             shape = iconShape,
             motion = iconMotionFor(item.key),
+            animateIcons = style.animateIcons,
         )
     }
 

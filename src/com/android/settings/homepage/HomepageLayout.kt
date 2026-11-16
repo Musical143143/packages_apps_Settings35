@@ -239,6 +239,7 @@ data class HomepageLayout(
     val cornerStyle: CornerStyle = CornerStyle.ROUNDED,
     val dividerStyle: DividerStyle = DividerStyle.INSET,
     val tapAnimation: TapAnimation = TapAnimation.RIPPLE,
+    val animateIcons: Boolean = true,
 ) {
 
     fun sizeOf(key: String, default: TileSize): TileSize = sizes[key] ?: default
@@ -481,6 +482,7 @@ internal object HomepageLayoutJson {
     private const val KEY_CORNER_STYLE = "cornerStyle"
     private const val KEY_DIVIDER_STYLE = "dividerStyle"
     private const val KEY_TAP_ANIMATION = "tapAnimation"
+    private const val KEY_ANIMATE_ICONS = "animateIcons"
 
     private const val KEY_SHOW_TITLE = "showTitle"
     private const val KEY_CUSTOM_TITLE = "customTitle"
@@ -541,6 +543,7 @@ internal object HomepageLayoutJson {
         put(KEY_CORNER_STYLE, layout.cornerStyle.name)
         put(KEY_DIVIDER_STYLE, layout.dividerStyle.name)
         put(KEY_TAP_ANIMATION, layout.tapAnimation.name)
+        put(KEY_ANIMATE_ICONS, layout.animateIcons)
     }.toString()
 
     fun decode(raw: String?, fallback: HomepageLayout): HomepageLayout {
@@ -571,6 +574,7 @@ internal object HomepageLayoutJson {
                 cornerStyle = enumOr(json.optString(KEY_CORNER_STYLE), fallback.cornerStyle),
                 dividerStyle = enumOr(json.optString(KEY_DIVIDER_STYLE), fallback.dividerStyle),
                 tapAnimation = enumOr(json.optString(KEY_TAP_ANIMATION), fallback.tapAnimation),
+                animateIcons = json.optBoolean(KEY_ANIMATE_ICONS, fallback.animateIcons),
             )
         } catch (e: Exception) {
             Log.w(TAG, "Discarding unreadable homepage layout", e)
