@@ -242,6 +242,9 @@ data class HomepageLayout(
     val animateIcons: Boolean = true,
     val borderEnabled: Boolean = true,
     val borderColor: Int? = null,
+    val symbolColorEnabled: Boolean = false,
+    val symbolRandom: Boolean = false,
+    val symbolColor: Int? = null,
 ) {
 
     fun sizeOf(key: String, default: TileSize): TileSize = sizes[key] ?: default
@@ -314,6 +317,10 @@ data class HomepageLayout(
     fun withBorderColor(argb: Int): HomepageLayout = copy(borderColor = argb.opaque())
 
     fun resetBorderColor(): HomepageLayout = if (borderColor != null) copy(borderColor = null) else this
+
+    fun withSymbolColor(argb: Int): HomepageLayout = copy(symbolColor = argb.opaque())
+
+    fun resetSymbolColor(): HomepageLayout = if (symbolColor != null) copy(symbolColor = null) else this
 
     /**
      * Applies the One UI style: large soft corners, separated cards, filled icons, a top search
@@ -491,6 +498,9 @@ internal object HomepageLayoutJson {
     private const val KEY_ANIMATE_ICONS = "animateIcons"
     private const val KEY_BORDER_ENABLED = "borderEnabled"
     private const val KEY_BORDER_COLOR = "borderColor"
+    private const val KEY_SYMBOL_COLOR_ENABLED = "symbolColorEnabled"
+    private const val KEY_SYMBOL_RANDOM = "symbolRandom"
+    private const val KEY_SYMBOL_COLOR = "symbolColor"
 
     private const val KEY_SHOW_TITLE = "showTitle"
     private const val KEY_CUSTOM_TITLE = "customTitle"
@@ -554,6 +564,9 @@ internal object HomepageLayoutJson {
         put(KEY_ANIMATE_ICONS, layout.animateIcons)
         put(KEY_BORDER_ENABLED, layout.borderEnabled)
         layout.borderColor?.let { put(KEY_BORDER_COLOR, it) }
+        put(KEY_SYMBOL_COLOR_ENABLED, layout.symbolColorEnabled)
+        put(KEY_SYMBOL_RANDOM, layout.symbolRandom)
+        layout.symbolColor?.let { put(KEY_SYMBOL_COLOR, it) }
     }.toString()
 
     fun decode(raw: String?, fallback: HomepageLayout): HomepageLayout {
@@ -587,6 +600,9 @@ internal object HomepageLayoutJson {
                 animateIcons = json.optBoolean(KEY_ANIMATE_ICONS, fallback.animateIcons),
                 borderEnabled = json.optBoolean(KEY_BORDER_ENABLED, fallback.borderEnabled),
                 borderColor = json.optArgb(KEY_BORDER_COLOR, fallback.borderColor),
+                symbolColorEnabled = json.optBoolean(KEY_SYMBOL_COLOR_ENABLED, fallback.symbolColorEnabled),
+                symbolRandom = json.optBoolean(KEY_SYMBOL_RANDOM, fallback.symbolRandom),
+                symbolColor = json.optArgb(KEY_SYMBOL_COLOR, fallback.symbolColor),
             )
         } catch (e: Exception) {
             Log.w(TAG, "Discarding unreadable homepage layout", e)

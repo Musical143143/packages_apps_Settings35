@@ -101,6 +101,8 @@ private sealed class ColorTarget {
 
     object Border : ColorTarget()
 
+    object Symbol : ColorTarget()
+
     class Entry(val key: String) : ColorTarget()
 }
 
@@ -352,6 +354,7 @@ fun SettingsHomepageScreen(
                                     onLayout = { layout = it },
                                     onPickIconColor = { colorTarget = ColorTarget.Page },
                                     onPickBorderColor = { colorTarget = ColorTarget.Border },
+                                    onPickSymbolColor = { colorTarget = ColorTarget.Symbol },
                                     onPickIconShape = { shapeTarget = ShapeTarget.Page },
                                     onPickAvatarShape = { shapeTarget = ShapeTarget.Avatar },
                                     onAddBreak = { layout = layout.appendSeparator() },
@@ -499,6 +502,18 @@ fun SettingsHomepageScreen(
 
         val colorEntry = (colorTarget as? ColorTarget.Entry)?.let { catalog.find(it.key) }
         when {
+            colorTarget is ColorTarget.Symbol -> ColorPickerSheet(
+                title = "Symbol colour",
+                initial = layout.symbolColor?.let { Color(it) },
+                themeColor = MaterialTheme.colorScheme.primary,
+                onPick = { layout = layout.withSymbolColor(it.toArgb()) },
+                onReset = {
+                    layout = layout.resetSymbolColor()
+                    colorTarget = null
+                },
+                onDismiss = { colorTarget = null },
+            )
+
             colorTarget is ColorTarget.Border -> ColorPickerSheet(
                 title = "Border colour",
                 initial = layout.borderColor?.let { Color(it) },
@@ -632,6 +647,7 @@ private fun ChromeContent(
     onLayout: (HomepageLayout) -> Unit,
     onPickIconColor: () -> Unit,
     onPickBorderColor: () -> Unit,
+    onPickSymbolColor: () -> Unit,
     onPickIconShape: () -> Unit,
     onPickAvatarShape: () -> Unit,
     onAddBreak: () -> Unit,
@@ -654,6 +670,7 @@ private fun ChromeContent(
             onLayout = onLayout,
             onPickIconColor = onPickIconColor,
             onPickBorderColor = onPickBorderColor,
+            onPickSymbolColor = onPickSymbolColor,
             onPickIconShape = onPickIconShape,
             onPickAvatarShape = onPickAvatarShape,
             onAddBreak = onAddBreak,

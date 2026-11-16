@@ -780,6 +780,7 @@ internal fun AppearancePanel(
     onLayout: (HomepageLayout) -> Unit,
     onPickIconColor: () -> Unit,
     onPickBorderColor: () -> Unit,
+    onPickSymbolColor: () -> Unit,
     onPickIconShape: () -> Unit,
     onPickAvatarShape: () -> Unit,
     onAddBreak: () -> Unit,
@@ -983,6 +984,29 @@ internal fun AppearancePanel(
                         onClick = onPickBorderColor,
                         onReset = { onLayout(layout.resetBorderColor()) },
                     )
+                    SwitchRow(
+                        label = "Symbol colours",
+                        checked = layout.symbolColorEnabled,
+                        onCheckedChange = { onLayout(layout.copy(symbolColorEnabled = it)) },
+                    )
+                    if (layout.symbolColorEnabled) {
+                        SwitchRow(
+                            label = "Random symbol colours",
+                            checked = layout.symbolRandom,
+                            onCheckedChange = { onLayout(layout.copy(symbolRandom = it)) },
+                        )
+                        if (!layout.symbolRandom) {
+                            ColorRow(
+                                label = "Symbol colour",
+                                color = layout.symbolColor?.let { Color(it) }
+                                    ?: MaterialTheme.colorScheme.onSurface,
+                                overridden = layout.symbolColor != null,
+                                inheritedFrom = "automatic contrast",
+                                onClick = onPickSymbolColor,
+                                onReset = { onLayout(layout.resetSymbolColor()) },
+                            )
+                        }
+                    }
                     val colorOverrides = layout.iconColors.size
                     if (colorOverrides > 0) {
                         TextButton(onClick = { onLayout(layout.resetEntryIconColors()) }) {

@@ -260,6 +260,9 @@ data class TileStyle(
     val animateIcons: Boolean = true,
     val borderEnabled: Boolean = true,
     val borderColor: Color? = null,
+    val symbolColorEnabled: Boolean = false,
+    val symbolRandom: Boolean = false,
+    val symbolColor: Color? = null,
 )
 
 fun HomepageLayout.tileStyle(): TileStyle = TileStyle(
@@ -276,7 +279,27 @@ fun HomepageLayout.tileStyle(): TileStyle = TileStyle(
     animateIcons = animateIcons,
     borderEnabled = borderEnabled,
     borderColor = borderColor?.let { Color(it) },
+    symbolColorEnabled = symbolColorEnabled,
+    symbolRandom = symbolRandom,
+    symbolColor = symbolColor?.let { Color(it) },
 )
+
+/**
+ * The glyph color for one item, or null to keep the automatic contrast color. A random color is
+ * stable for each item, so it does not change while scrolling.
+ */
+internal fun TileStyle.symbolTintFor(key: String, isDark: Boolean): Color? = when {
+    !symbolColorEnabled -> null
+    symbolRandom -> {
+        val hue = (key.hashCode() and 0x7fffffff) % 360
+        Color.hsv(
+            hue = hue.toFloat(),
+            saturation = if (isDark) 0.6f else 0.85f,
+            value = if (isDark) 1f else 0.7f,
+        )
+    }
+    else -> symbolColor
+}
 
 internal fun TileSize.fixedHeight(): Dp? = when (this) {
     TileSize.SMALL -> SMALL_TILE_HEIGHT
@@ -377,6 +400,7 @@ internal fun HomepageIcon(
     shape: Shape = CircleShape,
     motion: IconMotion = IconMotion.PULSE,
     animateIcons: Boolean = true,
+    symbolTint: Color? = null,
 ) {
     val scheme = MaterialTheme.colorScheme
     val accent = color ?: scheme.primary
@@ -438,6 +462,7 @@ internal fun HomepageIcon(
     }
     val tint = when {
         !tinted -> Color.Unspecified
+        symbolTint != null -> symbolTint
         style == IconStyle.FILLED -> if (color == null) scheme.onPrimary else color.onColor()
         style == IconStyle.PLAIN -> accent
         else -> scheme.onSurface
@@ -564,6 +589,10 @@ internal fun TileBody(
             shape = iconShape,
             motion = iconMotionFor(item.key),
             animateIcons = style.animateIcons,
+            symbolTint = style.symbolTintFor(
+                item.key,
+                isDark = MaterialTheme.colorScheme.surfaceBright.luminance() < 0.5f,
+            ),
         )
     }
 
