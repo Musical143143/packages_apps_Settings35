@@ -1246,7 +1246,7 @@ internal fun HomepageHeader(
     modifier: Modifier = Modifier,
 ) {
     val compact = config.size == HeaderSize.COMPACT
-    if (!config.showTitle && !config.showAvatar && greeting == null) {
+    if (!config.showTitle && !config.showAvatar && greeting == null && !config.showTimeGreeting) {
         Spacer(modifier.height(if (compact) 16.dp else 32.dp))
         return
     }
@@ -1263,6 +1263,10 @@ internal fun HomepageHeader(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(modifier = Modifier.weight(1f)) {
+            if (config.showTimeGreeting) {
+                TimeGreeting(font = config.greetingFont)
+                Spacer(Modifier.height(8.dp))
+            }
             if (greeting != null) {
                 Text(
                     text = greeting,

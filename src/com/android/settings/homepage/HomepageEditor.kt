@@ -908,6 +908,24 @@ internal fun AppearancePanel(
                             onLayout(layout.copy(header = layout.header.copy(showGreeting = it)))
                         },
                     )
+                    SwitchRow(
+                        label = "Time greeting",
+                        checked = layout.header.showTimeGreeting,
+                        onCheckedChange = {
+                            onLayout(layout.copy(header = layout.header.copy(showTimeGreeting = it)))
+                        },
+                    )
+                    if (layout.header.showTimeGreeting) {
+                        SectionLabel("Greeting font")
+                        ChipOptions(
+                            options = GreetingFont.values().toList(),
+                            selected = layout.header.greetingFont,
+                            labelOf = { it.label() },
+                            onSelect = {
+                                onLayout(layout.copy(header = layout.header.copy(greetingFont = it)))
+                            },
+                        )
+                    }
 
                     SectionLabel("Tiles")
                     SwitchRow(

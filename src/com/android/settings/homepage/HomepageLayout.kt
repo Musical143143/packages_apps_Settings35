@@ -190,6 +190,12 @@ enum class TapAnimation(val ripple: Boolean, val glow: Boolean, val squish: Bool
 
 enum class HeaderSize { LARGE, COMPACT }
 
+/** Typeface preset for the large time-based greeting in the header. */
+enum class GreetingFont {
+    CLASSIC, BOLD, BLACK, LIGHT, THIN, ITALIC, BOLD_ITALIC, LIGHT_ITALIC, WIDE, TIGHT, CAPS_SPACED,
+    SERIF, SERIF_BOLD, SERIF_ITALIC, SERIF_LIGHT, MONO, MONO_BOLD, MONO_ITALIC, CURSIVE, CURSIVE_BOLD,
+}
+
 data class HeaderConfig(
     val showTitle: Boolean = true,
     val customTitle: String? = null,
@@ -197,6 +203,8 @@ data class HeaderConfig(
     val showGreeting: Boolean = false,
     val size: HeaderSize = HeaderSize.LARGE,
     val avatarShape: IconShape = IconShape.COOKIE_4,
+    val showTimeGreeting: Boolean = false,
+    val greetingFont: GreetingFont = GreetingFont.CLASSIC,
 )
 
 data class HomepageLayout(
@@ -472,6 +480,8 @@ internal object HomepageLayoutJson {
     private const val KEY_SHOW_GREETING = "showGreeting"
     private const val KEY_HEADER_SIZE = "size"
     private const val KEY_AVATAR_SHAPE = "avatarShape"
+    private const val KEY_SHOW_TIME_GREETING = "showTimeGreeting"
+    private const val KEY_GREETING_FONT = "greetingFont"
 
     fun encode(layout: HomepageLayout): String = JSONObject().apply {
         put(KEY_VERSION, VERSION)
@@ -495,6 +505,8 @@ internal object HomepageLayoutJson {
             put(KEY_SHOW_GREETING, layout.header.showGreeting)
             put(KEY_HEADER_SIZE, layout.header.size.name)
             put(KEY_AVATAR_SHAPE, layout.header.avatarShape.name)
+            put(KEY_SHOW_TIME_GREETING, layout.header.showTimeGreeting)
+            put(KEY_GREETING_FONT, layout.header.greetingFont.name)
         })
         put(KEY_SEARCH_BAR, layout.searchBar.name)
         put(KEY_SEARCH_BAR_BREAK, layout.searchBarBreak)
@@ -606,6 +618,8 @@ internal object HomepageLayoutJson {
             showGreeting = optBoolean(KEY_SHOW_GREETING, fallback.showGreeting),
             size = enumOr(optString(KEY_HEADER_SIZE), fallback.size),
             avatarShape = enumOr(optString(KEY_AVATAR_SHAPE), fallback.avatarShape),
+            showTimeGreeting = optBoolean(KEY_SHOW_TIME_GREETING, fallback.showTimeGreeting),
+            greetingFont = enumOr(optString(KEY_GREETING_FONT), fallback.greetingFont),
         )
     }
 }
