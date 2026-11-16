@@ -252,14 +252,14 @@ internal fun TimeGreeting(
                 .clip(GREETING_PILL_SHAPE)
                 .background(MaterialTheme.colorScheme.surfaceBright.copy(alpha = 0.7f))
                 .border(1.dp, color.copy(alpha = 0.8f), GREETING_PILL_SHAPE)
-                .padding(horizontal = 18.dp, vertical = 8.dp),
+                .padding(horizontal = 14.dp, vertical = 4.dp),
             style = TextStyle(
                 fontFamily = typeface.family,
                 fontWeight = typeface.weight,
                 fontStyle = typeface.style,
                 letterSpacing = typeface.spacing,
                 fontSize = fontSize.sp,
-                lineHeight = (fontSize + 6).sp,
+                lineHeight = (fontSize + 2).sp,
                 shadow = Shadow(
                     color = color.copy(alpha = 0.6f),
                     offset = Offset.Zero,
