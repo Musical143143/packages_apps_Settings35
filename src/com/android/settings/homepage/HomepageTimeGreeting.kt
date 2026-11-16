@@ -44,7 +44,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
@@ -72,7 +71,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 
 private const val RGB_CYCLE_MS = 6000
 private const val MOVE_HALF_CYCLE_MS = 2500
-private const val GREETING_FONT_SIZE = 44
+private const val GREETING_FONT_SIZE = 34
 private const val COMPACT_FONT_SIZE = 24
 private const val RING_CYCLE_MS = 4000
 private val GREETING_PILL_SHAPE = RoundedCornerShape(50)
@@ -178,7 +177,8 @@ internal fun TimeGreeting(
 ) {
     val compact = size == GreetingSize.COMPACT
     val fontSize = if (compact) COMPACT_FONT_SIZE else GREETING_FONT_SIZE
-    val maxLines = if (compact) 1 else 2
+    // Show every line of the greeting; it wraps instead of being cut off with an ellipsis.
+    val maxLines = Int.MAX_VALUE
     val context = LocalContext.current
     val animationsEnabled = remember(context) {
         Settings.Global.getFloat(
@@ -247,7 +247,6 @@ internal fun TimeGreeting(
             text = greeting,
             color = color,
             maxLines = maxLines,
-            overflow = TextOverflow.Ellipsis,
             modifier = Modifier
                 .align(BiasAlignment(horizontalBias = bias, verticalBias = 0f))
                 .clip(GREETING_PILL_SHAPE)
