@@ -118,6 +118,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.StartOffset
 import kotlin.random.Random
+import kotlin.math.PI
 
 internal val GRID_TILE_SPACING = 12.dp
 internal val SEARCH_BAR_HEIGHT = 56.dp
@@ -334,9 +335,28 @@ private fun rememberDrawableBitmap(
 }
 
 private const val ICON_PULSE_MS = 2400
+private const val ICON_SPIN_MS = 6000
+private val ICON_MOTION_DISTANCE = 4.dp
 private const val ICON_PULSE_MIN_SCALE = 0.92f
 
 internal fun Color.onColor(): Color = if (luminance() > 0.5f) Color.Black else Color.White
+
+/** How a section icon moves, chosen to suit what the symbol stands for. */
+internal enum class IconMotion { PULSE, SPIN, WOBBLE, BOUNCE, SWAY, FADE }
+
+/** Picks an icon motion from the setting's key, such as wifi, sound or location. */
+internal fun iconMotionFor(key: String): IconMotion {
+    val k = key.lowercase()
+    return when {
+        "wifi" in k || "network" in k || "connect" in k || "bluetooth" in k -> IconMotion.FADE
+        "battery" in k -> IconMotion.FADE
+        "notif" in k || "sound" in k || "volume" in k -> IconMotion.WOBBLE
+        "system" in k || "setting" in k || "about" in k || "modes" in k -> IconMotion.SPIN
+        "location" in k -> IconMotion.BOUNCE
+        "wallpaper" in k || "style" in k -> IconMotion.SWAY
+        else -> IconMotion.PULSE
+    }
+}
 
 @Composable
 internal fun HomepageIcon(
@@ -348,6 +368,7 @@ internal fun HomepageIcon(
     glyphSize: Dp = 22.dp,
     color: Color? = null,
     shape: Shape = CircleShape,
+    motion: IconMotion = IconMotion.PULSE,
 ) {
     val scheme = MaterialTheme.colorScheme
     val accent = color ?: scheme.primary
@@ -359,24 +380,45 @@ internal fun HomepageIcon(
             1f,
         ) > 0f
     }
-    // Each icon starts at a random point in the cycle, so the symbols do not pulse in unison.
-    val pulseOffset = remember { Random.nextInt(0, ICON_PULSE_MS) }
-    val pulseTransition = rememberInfiniteTransition(label = "iconPulse")
-    val pulse by pulseTransition.animateFloat(
+    // Each icon starts at a random point in its cycle, so the symbols do not move in unison.
+    val motionOffset = remember { Random.nextInt(0, ICON_PULSE_MS) }
+    val motionTransition = rememberInfiniteTransition(label = "iconMotion")
+    val pulse by motionTransition.animateFloat(
         initialValue = 0f,
         targetValue = 1f,
         animationSpec = infiniteRepeatable(
             animation = tween(durationMillis = ICON_PULSE_MS, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse,
-            initialStartOffset = StartOffset(pulseOffset),
+            initialStartOffset = StartOffset(motionOffset),
         ),
         label = "iconPulseValue",
     )
-    val pulseModifier = Modifier.graphicsLayer {
-        // Read the animated value here, in the draw phase, so frames do not recompose.
-        val scale = if (animate) ICON_PULSE_MIN_SCALE + (1f - ICON_PULSE_MIN_SCALE) * pulse else 1f
-        scaleX = scale
-        scaleY = scale
+    val spin by motionTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = ICON_SPIN_MS, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart,
+        ),
+        label = "iconSpinValue",
+    )
+    val motionOffsetPx = with(LocalDensity.current) { ICON_MOTION_DISTANCE.toPx() }
+    val motionModifier = Modifier.graphicsLayer {
+        // Read the animated values here, in the draw phase, so frames do not recompose.
+        if (animate) {
+            when (motion) {
+                IconMotion.PULSE -> {
+                    val scale = ICON_PULSE_MIN_SCALE + (1f - ICON_PULSE_MIN_SCALE) * pulse
+                    scaleX = scale
+                    scaleY = scale
+                }
+                IconMotion.SPIN -> rotationZ = spin * 360f
+                IconMotion.WOBBLE -> rotationZ = sin(pulse * 2f * PI.toFloat()) * 12f
+                IconMotion.BOUNCE -> translationY = -sin(pulse * PI.toFloat()) * motionOffsetPx
+                IconMotion.SWAY -> translationX = sin(pulse * 2f * PI.toFloat()) * motionOffsetPx * 0.6f
+                IconMotion.FADE -> alpha = 0.55f + 0.45f * pulse
+            }
+        }
     }
     val background = when {
         !tinted && style == IconStyle.FILLED -> color ?: scheme.surfaceContainerHighest
@@ -407,21 +449,21 @@ internal fun HomepageIcon(
                 bitmap = bitmap,
                 contentDescription = null,
                 tint = tint,
-                modifier = Modifier.size(glyphSize).then(pulseModifier),
+                modifier = Modifier.size(glyphSize).then(motionModifier),
             )
 
             iconRes != null -> Icon(
                 painter = painterResource(id = iconRes),
                 contentDescription = null,
                 tint = tint,
-                modifier = Modifier.size(glyphSize + 8.dp).then(pulseModifier),
+                modifier = Modifier.size(glyphSize + 8.dp).then(motionModifier),
             )
 
             icon != null -> Icon(
                 imageVector = icon,
                 contentDescription = null,
                 tint = tint,
-                modifier = Modifier.size(glyphSize).then(pulseModifier),
+                modifier = Modifier.size(glyphSize).then(motionModifier),
             )
         }
     }
@@ -504,6 +546,7 @@ internal fun TileBody(
             glyphSize = glyphSize,
             color = iconColor,
             shape = iconShape,
+            motion = iconMotionFor(item.key),
         )
     }
 
